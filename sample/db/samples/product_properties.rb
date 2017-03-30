@@ -1,6 +1,6 @@
 products =
   {
-    "Ruby on Rails Baseball Jersey" =>
+    "Solidus Baseball Jersey" =>
     {
       "Manufacturer" => "Wilson",
       "Brand" => "Wannabe Sports",
@@ -11,7 +11,7 @@ products =
       "Fit" => "Loose",
       "Gender" => "Men's"
     },
-    "Ruby on Rails Jr. Spaghetti" =>
+    "Solidus Jr. Spaghetti" =>
     {
       "Manufacturer" => "Jerseys",
       "Brand" => "Resiliance",
@@ -22,7 +22,7 @@ products =
       "Fit" => "Form",
       "Gender" => "Women's"
     },
-    "Ruby on Rails Ringer T-Shirt" =>
+    "Solidus Ringer T-Shirt" =>
     {
       "Manufacturer" => "Jerseys",
       "Brand" => "Conditioned",
@@ -33,24 +33,24 @@ products =
       "Fit" => "Loose",
       "Gender" => "Men's"
     },
-    "Ruby on Rails Tote" =>
+    "Solidus Tote" =>
     {
       "Type" => "Tote",
       "Size" => %{15" x 18" x 6"},
       "Material" => "Canvas"
     },
-    "Ruby on Rails Bag" =>
+    "Solidus Bag" =>
     {
       "Type" => "Messenger",
       "Size" => %{14 1/2" x 12" x 5"},
       "Material" => "600 Denier Polyester"
     },
-    "Ruby on Rails Mug" =>
+    "Solidus Mug" =>
     {
       "Type" => "Mug",
       "Size" => %{4.5" tall, 3.25" dia.}
     },
-    "Ruby on Rails Stein" =>
+    "Solidus Stein" =>
     {
       "Type" => "Stein",
       "Size" => %{6.75" tall, 3.75" dia. base, 3" dia. rim}

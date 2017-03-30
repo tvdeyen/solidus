@@ -11,28 +11,28 @@ default_attrs = {
 
 products = [
   {
-    name: "Ruby on Rails Tote",
+    name: "Solidus Tote",
     tax_category: tax_category,
     shipping_category: shipping_category,
     price: 15.99,
     eur_price: 14
   },
   {
-    name: "Ruby on Rails Bag",
+    name: "Solidus Bag",
     tax_category: tax_category,
     shipping_category: shipping_category,
     price: 22.99,
     eur_price: 19
   },
   {
-    name: "Ruby on Rails Baseball Jersey",
+    name: "Solidus Baseball Jersey",
     tax_category: tax_category,
     shipping_category: shipping_category,
     price: 19.99,
     eur_price: 16
   },
   {
-    name: "Ruby on Rails Jr. Spaghetti",
+    name: "Solidus Jr. Spaghetti",
     tax_category: tax_category,
     shipping_category: shipping_category,
     price: 19.99,
@@ -40,7 +40,7 @@ products = [
 
   },
   {
-    name: "Ruby on Rails Ringer T-Shirt",
+    name: "Solidus Ringer T-Shirt",
     shipping_category: shipping_category,
     tax_category: tax_category,
     price: 19.99,
@@ -61,13 +61,13 @@ products = [
     eur_price: 16
   },
   {
-    name: "Ruby on Rails Mug",
+    name: "Solidus Mug",
     shipping_category: shipping_category,
     price: 13.99,
     eur_price: 12
   },
   {
-    name: "Ruby on Rails Stein",
+    name: "Solidus Stein",
     shipping_category: shipping_category,
     price: 16.99,
     eur_price: 14

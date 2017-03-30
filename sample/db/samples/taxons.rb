@@ -5,13 +5,13 @@ categories = Spree::Taxonomy.find_by_name!("Categories")
 brands = Spree::Taxonomy.find_by_name!("Brand")
 
 products = {
-  ror_tote: "Ruby on Rails Tote",
-  ror_bag: "Ruby on Rails Bag",
-  ror_mug: "Ruby on Rails Mug",
-  ror_stein: "Ruby on Rails Stein",
-  ror_baseball_jersey: "Ruby on Rails Baseball Jersey",
-  ror_jr_spaghetti: "Ruby on Rails Jr. Spaghetti",
-  ror_ringer: "Ruby on Rails Ringer T-Shirt",
+  solidus_tote: "Solidus Tote",
+  solidus_bag: "Solidus Bag",
+  solidus_mug: "Solidus Mug",
+  solidus_stein: "Solidus Stein",
+  solidus_baseball_jersey: "Solidus Baseball Jersey",
+  solidus_jr_spaghetti: "Solidus Jr. Spaghetti",
+  solidus_ringer: "Solidus Ringer T-Shirt",
   apache_baseball_jersey: "Apache Baseball Jersey",
   ruby_baseball_jersey: "Ruby Baseball Jersey"
 }
@@ -32,8 +32,8 @@ taxons = [
     parent: "Categories",
     position: 1,
     products: [
-      products[:ror_tote],
-      products[:ror_bag]
+      products[:solidus_tote],
+      products[:solidus_bag]
     ]
   },
   {
@@ -42,8 +42,8 @@ taxons = [
     parent: "Categories",
     position: 2,
     products: [
-      products[:ror_mug],
-      products[:ror_stein]
+      products[:solidus_mug],
+      products[:solidus_stein]
     ]
   },
   {
@@ -57,7 +57,7 @@ taxons = [
     parent: "Clothing",
     position: 0,
     products: [
-      products[:ror_jr_spaghetti]
+      products[:solidus_jr_spaghetti]
     ]
   },
   {
@@ -65,8 +65,8 @@ taxons = [
     taxonomy: categories,
     parent: "Clothing",
     products: [
-      products[:ror_baseball_jersey],
-      products[:ror_ringer],
+      products[:solidus_baseball_jersey],
+      products[:solidus_ringer],
       products[:apache_baseball_jersey],
       products[:ruby_baseball_jersey]
     ],
@@ -97,13 +97,13 @@ taxons = [
     taxonomy: brands,
     parent: "Brand",
     products: [
-      products[:ror_tote],
-      products[:ror_bag],
-      products[:ror_mug],
-      products[:ror_stein],
-      products[:ror_baseball_jersey],
-      products[:ror_jr_spaghetti],
-      products[:ror_ringer]
+      products[:solidus_tote],
+      products[:solidus_bag],
+      products[:solidus_mug],
+      products[:solidus_stein],
+      products[:solidus_baseball_jersey],
+      products[:solidus_jr_spaghetti],
+      products[:solidus_ringer]
     ]
   }
 ]

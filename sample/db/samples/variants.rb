@@ -1,13 +1,13 @@
 Spree::Sample.load_sample("option_values")
 Spree::Sample.load_sample("products")
 
-ror_baseball_jersey = Spree::Product.find_by_name!("Ruby on Rails Baseball Jersey")
-ror_tote = Spree::Product.find_by_name!("Ruby on Rails Tote")
-ror_bag = Spree::Product.find_by_name!("Ruby on Rails Bag")
-ror_jr_spaghetti = Spree::Product.find_by_name!("Ruby on Rails Jr. Spaghetti")
-ror_mug = Spree::Product.find_by_name!("Ruby on Rails Mug")
-ror_ringer = Spree::Product.find_by_name!("Ruby on Rails Ringer T-Shirt")
-ror_stein = Spree::Product.find_by_name!("Ruby on Rails Stein")
+solidus_baseball_jersey = Spree::Product.find_by_name!("Solidus Baseball Jersey")
+solidus_tote = Spree::Product.find_by_name!("Solidus Tote")
+solidus_bag = Spree::Product.find_by_name!("Solidus Bag")
+solidus_jr_spaghetti = Spree::Product.find_by_name!("Solidus Jr. Spaghetti")
+solidus_mug = Spree::Product.find_by_name!("Solidus Mug")
+solidus_ringer = Spree::Product.find_by_name!("Solidus Ringer T-Shirt")
+solidus_stein = Spree::Product.find_by_name!("Solidus Stein")
 ruby_baseball_jersey = Spree::Product.find_by_name!("Ruby Baseball Jersey")
 apache_baseball_jersey = Spree::Product.find_by_name!("Apache Baseball Jersey")
 
@@ -22,61 +22,61 @@ green = Spree::OptionValue.find_by_name!("Green")
 
 variants = [
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [small, red],
     sku: "ROR-00001",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [small, blue],
     sku: "ROR-00002",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [small, green],
     sku: "ROR-00003",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [medium, red],
     sku: "ROR-00004",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [medium, blue],
     sku: "ROR-00005",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [medium, green],
     sku: "ROR-00006",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [large, red],
     sku: "ROR-00007",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [large, blue],
     sku: "ROR-00008",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [large, green],
     sku: "ROR-00009",
     cost_price: 17
   },
   {
-    product: ror_baseball_jersey,
+    product: solidus_baseball_jersey,
     option_values: [extra_large, green],
     sku: "ROR-00010",
     cost_price: 17
@@ -84,31 +84,31 @@ variants = [
 ]
 
 masters = {
-  ror_baseball_jersey => {
+  solidus_baseball_jersey => {
     sku: "ROR-001",
     cost_price: 17
   },
-  ror_tote => {
+  solidus_tote => {
     sku: "ROR-00011",
     cost_price: 17
   },
-  ror_bag => {
+  solidus_bag => {
     sku: "ROR-00012",
     cost_price: 21
   },
-  ror_jr_spaghetti => {
+  solidus_jr_spaghetti => {
     sku: "ROR-00013",
     cost_price: 17
   },
-  ror_mug => {
+  solidus_mug => {
     sku: "ROR-00014",
     cost_price: 11
   },
-  ror_ringer => {
+  solidus_ringer => {
     sku: "ROR-00015",
     cost_price: 17
   },
-  ror_stein => {
+  solidus_stein => {
     sku: "ROR-00016",
     cost_price: 15
   },
