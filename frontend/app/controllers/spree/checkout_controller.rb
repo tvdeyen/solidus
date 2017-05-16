@@ -131,7 +131,7 @@ module Spree
 
     def load_order
       @order = current_order
-      redirect_to(spree.cart_path) && return unless @order
+      redirect_to(spree.cart_path) unless @order
     end
 
     def set_state_if_present
