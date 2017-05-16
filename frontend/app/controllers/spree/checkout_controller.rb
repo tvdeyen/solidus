@@ -111,7 +111,6 @@ module Spree
       unless skip_state_validation?
         if (params[:state] && !@order.has_checkout_step?(params[:state])) ||
           (!params[:state] && !@order.has_checkout_step?(@order.state))
-          @order.state = 'cart'
           redirect_to checkout_state_path(@order.checkout_steps.first)
         end
       end
