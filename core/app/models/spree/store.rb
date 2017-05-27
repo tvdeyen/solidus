@@ -8,7 +8,9 @@ module Spree
   #
   class Store < Spree::Base
     has_many :store_payment_methods, inverse_of: :store
+    has_many :store_payment_providers, inverse_of: :store
     has_many :payment_methods, through: :store_payment_methods
+    has_many :payment_providers, through: :store_payment_providers
     has_many :orders, class_name: "Spree::Order"
 
     validates :code, presence: true, uniqueness: { allow_blank: true }

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::PaymentProvider do
   let(:payment_provider) { described_class.new }
 
-  describe '#stores', :pending do
+  describe '#stores' do
     let(:store) { create(:store, payment_providers: [payment_provider]) }
 
     subject { payment_provider.stores }
@@ -11,7 +11,7 @@ describe Spree::PaymentProvider do
     it { is_expected.to contain_exactly(store) }
   end
 
-  describe '#payment_methods', :pending do
+  describe '#payment_methods' do
     let(:payment_method) { create(:payment_method, payment_provider: payment_provider) }
 
     subject { payment_provider.payment_methods }
