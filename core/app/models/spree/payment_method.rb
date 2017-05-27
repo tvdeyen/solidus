@@ -8,6 +8,8 @@ module Spree
 
     validates :name, presence: true
 
+    belongs_to :payment_provider, class_name: 'Spree::PaymentProvider', inverse_of: :payment_methods
+
     has_many :payments, class_name: "Spree::Payment", inverse_of: :payment_method
     has_many :credit_cards, class_name: "Spree::CreditCard"
     has_many :store_payment_methods, inverse_of: :payment_method

@@ -14,6 +14,8 @@ describe Spree::PaymentMethod, type: :model do
                                               available_to_users: false,
                                               available_to_admin: true) }
 
+  let(:provider) { Spree::PaymentProvider.new }
+
   describe "available_to_[<users>, <admin>, <store>]" do
     context "when searching for payment methods available to users and admins" do
       subject { Spree::PaymentMethod.available_to_users.available_to_admin }
@@ -308,5 +310,9 @@ describe Spree::PaymentMethod, type: :model do
         expect(payment.display_on).to eq "none"
       end
     end
+  end
+
+  it 'has a payment_provider' do
+    expect(described_class.new(payment_provider: provider).payment_provider).to eq(provider)
   end
 end
