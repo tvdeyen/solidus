@@ -43,6 +43,8 @@ describe "Payment Methods", type: :feature do
   end
 
   context "admin editing a payment method" do
+    let!(:provider) { create(:payment_provider) }
+
     before(:each) do
       create(:check_payment_method)
       click_link "Payment Methods"
@@ -63,6 +65,13 @@ describe "Payment Methods", type: :feature do
       click_button "Update"
       expect(page).to have_content("Name can't be blank")
     end
+
+    it 'can change the payment provider' do
+      select provider.name, from: 'Provider'
+      click_button 'Update'
+      expect(page).to have_content('successfully updated!')
+      expect(page).to have_select('Provider', selected: provider.name)
+    end
   end
 
   context "changing type and payment_source", js: true do
@@ -77,12 +86,12 @@ describe "Payment Methods", type: :feature do
       click_icon :edit
       expect(page).to have_content('Test Mode')
 
-      select2_search 'Spree::PaymentMethod::Check', from: 'Type'
+      select2_search 'Spree::PaymentMethod::Check', from: 'Provider'
       expect(page).to have_content('you must save first')
       expect(page).to have_no_content('Test Mode')
 
       # change back
-      select2_search 'Spree::Gateway::Bogus', from: 'Type'
+      select2_search 'Spree::Gateway::Bogus', from: 'Provider'
       expect(page).to have_no_content('you must save first')
       expect(page).to have_content('Test Mode')
     end

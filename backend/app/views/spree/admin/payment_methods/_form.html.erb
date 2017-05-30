@@ -10,6 +10,12 @@
             <%= collection_select(:payment_method, :type, @providers, :to_s, :name, {}, {id: 'gtwy-type', class: 'select2 fullwidth js-gateway-type'}) %>
           </div>
 
+          <div class="field">
+            <%= f.label :payment_provider_id, Spree::PaymentMethod.human_attribute_name(:payment_provider) %>
+            <%= f.collection_select :payment_provider_id, Spree::PaymentProvider.all, :id, :name,
+              {include_blank: Spree.t(:not_available)}, class: 'select2 fullwidth' %>
+          </div>
+
           <div class="field js-preference-source-wrapper">
             <%= f.label :preference_source %>
             <%= f.select(:preference_source, [[Spree.t(:preference_source_none), nil]] + @object.class.available_preference_sources, {}, class: 'select2 fullwidth js-preference-source') %>
