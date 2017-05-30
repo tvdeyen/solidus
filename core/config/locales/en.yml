@@ -137,7 +137,8 @@ en:
         display_on: Display
         name: Name
         preference_source: Preference Source
-        type: Provider
+        type: Type
+        payment_provider: Provider
       spree/price:
         currency: Currency
         amount: Price
