@@ -1,0 +1,49 @@
+<%= render 'spree/admin/shared/payments_tabs' %>
+
+<% admin_breadcrumb(Spree.t(:settings)) %>
+<% admin_breadcrumb(plural_resource_name(Spree::Payment)) %>
+<% admin_breadcrumb(plural_resource_name(Spree::PaymentProvider)) %>
+
+<% content_for :page_actions do %>
+  <% if can?(:create, Spree::PaymentProvider) %>
+    <li>
+      <%= button_link_to Spree.t(:new_payment_provider), new_object_url, id: 'admin_new_payment_providers_link' %>
+    </li>
+  <% end %>
+<% end %>
+
+<% if @payment_providers.any? %>
+  <table class="index" data-hook="payment_providers_table">
+    <colgroup>
+      <col style="width: 90%">
+      <col style="width: 10%">
+    </colgroup>
+    <thead>
+      <tr data-hook="admin_payment_providers_index_headers">
+        <th><%= Spree::PaymentProvider.human_attribute_name(:name) %></th>
+        <th data-hook="admin_payment_providers_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @payment_providers.each do |provider|%>
+        <tr id="<%= spree_dom_id provider %>" data-hook="admin_payment_providers_index_rows" class="<%= cycle('odd', 'even')%>">
+          <td class="align-center"><%= provider.name %></td>
+          <td data-hook="admin_payment_providers_index_row_actions" class="actions">
+            <% if can?(:update, provider) %>
+              <%= link_to_edit provider, no_text: true %>
+            <% end %>
+            <% if can?(:destroy, provider) %>
+              <%= link_to_delete provider, no_text: true  %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="col-9 no-objects-found">
+    <%= render 'spree/admin/shared/no_objects_found',
+                 resource: Spree::PaymentProvider,
+                 new_resource_url: new_object_url %>
+  </div>
+<% end %>

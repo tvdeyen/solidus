@@ -17,6 +17,7 @@ describe Spree::PermissionSets::ConfigurationDisplay do
     it { is_expected.to be_able_to(:display, Spree::Country) }
     it { is_expected.to be_able_to(:display, Spree::State) }
     it { is_expected.to be_able_to(:display, Spree::PaymentMethod) }
+    it { is_expected.to be_able_to(:display, Spree::PaymentProvider) }
     it { is_expected.to be_able_to(:display, Spree::Taxonomy) }
     it { is_expected.to be_able_to(:display, Spree::ShippingMethod) }
     it { is_expected.to be_able_to(:display, Spree::ShippingCategory) }
@@ -32,6 +33,7 @@ describe Spree::PermissionSets::ConfigurationDisplay do
     it { is_expected.to be_able_to(:admin, Spree::Country) }
     it { is_expected.to be_able_to(:admin, Spree::State) }
     it { is_expected.to be_able_to(:admin, Spree::PaymentMethod) }
+    it { is_expected.to be_able_to(:admin, Spree::PaymentProvider) }
     it { is_expected.to be_able_to(:admin, Spree::Taxonomy) }
     it { is_expected.to be_able_to(:admin, Spree::ShippingMethod) }
     it { is_expected.to be_able_to(:admin, Spree::ShippingCategory) }
@@ -50,6 +52,7 @@ describe Spree::PermissionSets::ConfigurationDisplay do
     it { is_expected.not_to be_able_to(:display, Spree::Country) }
     it { is_expected.not_to be_able_to(:display, Spree::State) }
     it { is_expected.not_to be_able_to(:display, Spree::PaymentMethod) }
+    it { is_expected.not_to be_able_to(:display, Spree::PaymentProvider) }
     it { is_expected.not_to be_able_to(:display, Spree::Taxonomy) }
     it { is_expected.not_to be_able_to(:display, Spree::ShippingMethod) }
     it { is_expected.not_to be_able_to(:display, Spree::ShippingCategory) }
@@ -65,6 +68,7 @@ describe Spree::PermissionSets::ConfigurationDisplay do
     it { is_expected.not_to be_able_to(:admin, Spree::Country) }
     it { is_expected.not_to be_able_to(:admin, Spree::State) }
     it { is_expected.not_to be_able_to(:admin, Spree::PaymentMethod) }
+    it { is_expected.not_to be_able_to(:admin, Spree::PaymentProvider) }
     it { is_expected.not_to be_able_to(:admin, Spree::Taxonomy) }
     it { is_expected.not_to be_able_to(:admin, Spree::ShippingMethod) }
     it { is_expected.not_to be_able_to(:admin, Spree::ShippingCategory) }

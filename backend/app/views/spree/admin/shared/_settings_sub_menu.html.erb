@@ -3,8 +3,8 @@
     <%= tab :stores, label: :stores, url: spree.admin_stores_path %>
   <% end %>
 
-  <% if can?(:display, Spree::PaymentMethod) %>
-    <%= tab :payments, url: spree.admin_payment_methods_path %>
+  <% if can?(:display, Spree::PaymentMethod) || can?(:display, Spree::PaymentProvider) %>
+    <%= tab :payments, url: spree.admin_payment_methods_path, match_path: %r(payment_methods|payment_providers) %>
   <% end %>
 
   <% if can?(:display, Spree::Zone) || can?(:display, Spree::Country) || can?(:display, Spree::State) %>

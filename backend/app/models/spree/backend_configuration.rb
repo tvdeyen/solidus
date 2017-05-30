@@ -11,7 +11,7 @@ module Spree
     REPORT_TABS        ||= [:reports]
     CONFIGURATION_TABS ||= [:stores, :tax_categories,
                             :tax_rates, :zones, :countries, :states,
-                            :payment_methods, :shipping_methods,
+                            :payment_methods, :payment_providers, :shipping_methods,
                             :shipping_categories, :stock_locations,
                             :refund_reasons, :reimbursement_types, :return_authorization_reasons]
     PROMOTION_TABS     ||= [:promotions, :promotion_categories]

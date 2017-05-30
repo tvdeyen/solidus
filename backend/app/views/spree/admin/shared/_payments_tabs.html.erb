@@ -4,6 +4,9 @@
       <% if can?(:display, Spree::PaymentMethod) %>
         <%= settings_tab_item plural_resource_name(Spree::PaymentMethod), spree.admin_payment_methods_path %>
       <% end %>
+      <% if can?(:display, Spree::PaymentProvider) %>
+        <%= settings_tab_item plural_resource_name(Spree::PaymentProvider), spree.admin_payment_providers_path %>
+      <% end %>
     </ul>
   </nav>
 <% end %>

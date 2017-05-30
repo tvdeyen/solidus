@@ -183,6 +183,8 @@ Spree::Core::Engine.routes.draw do
       end
     end
 
+    resources :payment_providers
+
     resources :users do
       member do
         get :orders

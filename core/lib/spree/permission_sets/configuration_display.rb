@@ -9,6 +9,7 @@ module Spree
           can [:display, :admin], Spree::Country
           can [:display, :admin], Spree::State
           can [:display, :admin], Spree::PaymentMethod
+          can [:display, :admin], Spree::PaymentProvider
           can [:display, :admin], Spree::Taxonomy
           can [:display, :admin], Spree::ShippingMethod
           can [:display, :admin], Spree::ShippingCategory

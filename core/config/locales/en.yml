@@ -495,6 +495,9 @@ en:
       spree/payment_method:
         one: Payment Method
         other: Payment Methods
+      spree/payment_provider:
+        one: Payment Provider
+        other: Payment Providers
       spree/price:
         one: Price
         other: Prices
@@ -1454,6 +1457,7 @@ en:
     new_order_completed: New Order Completed
     new_payment: New Payment
     new_payment_method: New Payment Method
+    new_payment_provider: New Payment Provider
     new_product: New Product
     new_promotion: New Promotion
     new_promotion_category: New Promotion Category
