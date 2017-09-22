@@ -46,13 +46,13 @@ describe "Customer Details", type: :feature, js: true do
       expect(page).to have_select('Country', selected: "United States of America", visible: false)
       expect(page).to have_select('State', selected: user.bill_address.state.name, visible: false)
       expect(page).to have_field('Phone', with: user.bill_address.phone)
-      click_button "Update"
+      click_button "Continue"
       expect(Spree::Order.last.user).not_to be_nil
     end
 
     # Regression test for https://github.com/solidusio/solidus/pull/2176
     it "does not reset guest checkout to true when returning to customer tab" do
-      click_button "Update"
+      click_button "Continue"
       click_link "Customer"
       expect(find('#guest_checkout_true')).not_to be_checked
     end
@@ -62,7 +62,7 @@ describe "Customer Details", type: :feature, js: true do
       let!(:product) { create(:product_not_backorderable) }
 
       it "displays an error" do
-        click_button "Update"
+        click_button "Continue"
         expect(page).to have_content I18n.t('spree.insufficient_stock_for_order')
       end
     end
@@ -91,7 +91,7 @@ describe "Customer Details", type: :feature, js: true do
           fill_in "order_bill_address_attributes_state_name", with: "Piaui"
         end
 
-        click_button "Update"
+        click_button "Continue"
         expect(page).to have_content "Customer Details Updated"
         click_link "Customer"
         expect(page).to have_field("order_bill_address_attributes_state_name", with: "Piaui")
@@ -106,7 +106,7 @@ describe "Customer Details", type: :feature, js: true do
       within("#shipping") { fill_in_address }
       within("#billing") { fill_in_address }
 
-      click_button "Update"
+      click_button "Continue"
       click_link "Customer"
 
       # Regression test for https://github.com/spree/spree/issues/2950 and https://github.com/spree/spree/issues/2433
@@ -119,7 +119,7 @@ describe "Customer Details", type: :feature, js: true do
     it "should show validation errors" do
       order.update_attributes!(ship_address_id: nil)
       click_link "Customer"
-      click_button "Update"
+      click_button "Continue"
       expect(page).to have_content("Shipping address first name can't be blank")
     end
 
@@ -138,7 +138,7 @@ describe "Customer Details", type: :feature, js: true do
       it "updating order email works" do
         click_link "Customer"
         fill_in "order_email", with: "newemail@example.com"
-        click_button "Update"
+        click_button "Continue"
         expect(page).to have_content 'Customer Details Updated'
         click_link "Customer"
         expect(page).to have_field 'Customer E-Mail', with: order.reload.email
@@ -187,7 +187,7 @@ describe "Customer Details", type: :feature, js: true do
         end
 
         fill_in "order_ship_address_attributes_phone", with: "123-456-7890"
-        click_button "Update"
+        click_button "Continue"
       end
     end
   end

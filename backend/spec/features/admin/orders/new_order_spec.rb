@@ -43,7 +43,7 @@ describe "New Order", type: :feature do
 
     expect(page).to have_checked_field('order_use_billing')
     fill_in_address
-    click_on "Update"
+    click_on "Continue"
 
     click_on "Payments"
     click_on "Continue"
@@ -77,7 +77,7 @@ describe "New Order", type: :feature do
 
     expect(page).to have_checked_field('order_use_billing')
     fill_in_address
-    click_on "Update"
+    click_on "Continue"
 
     click_on "Payments"
     fill_in "Amount", with: '10.00'
@@ -107,7 +107,7 @@ describe "New Order", type: :feature do
 
       expect(page).to have_checked_field('order_use_billing')
       fill_in_address
-      click_on "Update"
+      click_on "Continue"
 
       click_on "Shipments"
 
@@ -151,7 +151,7 @@ describe "New Order", type: :feature do
 
       expect(page).to have_checked_field('order_use_billing')
       fill_in_address
-      click_on "Update"
+      click_on "Continue"
 
       # Automatically redirected to Shipments page
       select2_search product.name, from: I18n.t('spree.name_or_sku')
@@ -184,7 +184,7 @@ describe "New Order", type: :feature do
 
       click_link "Customer"
       targetted_select2 user.email, from: "#s2id_customer_search"
-      click_button "Update"
+      click_button "Continue"
       expect(page).to have_css('.order-state', text: 'Delivery')
     end
   end
