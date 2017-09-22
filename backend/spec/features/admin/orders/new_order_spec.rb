@@ -46,7 +46,7 @@ describe "New Order", type: :feature do
     click_on "Update"
 
     click_on "Payments"
-    click_on "Update"
+    click_on "Continue"
 
     expect(current_path).to eql(spree.admin_order_payments_path(Spree::Order.last))
 
@@ -81,11 +81,11 @@ describe "New Order", type: :feature do
 
     click_on "Payments"
     fill_in "Amount", with: '10.00'
-    click_on 'Update'
+    click_on 'Continue'
 
     click_on 'New Payment'
     fill_in "Amount", with: '29.98'
-    click_on 'Update'
+    click_on 'Continue'
 
     expect(page).to have_content("$10.00")
     expect(page).to have_content("$29.98")

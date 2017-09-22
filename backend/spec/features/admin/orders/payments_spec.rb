@@ -79,7 +79,7 @@ describe 'Payments', type: :feature do
 
       click_on 'New Payment'
       expect(page).to have_content('New Payment')
-      click_button 'Update'
+      click_button 'Continue'
       expect(page).to have_content('successfully created!')
 
       click_icon(:capture)
@@ -201,7 +201,7 @@ describe 'Payments', type: :feature do
       end
 
       it "can successfully be created and captured", js: true do
-        click_on 'Update'
+        click_on 'Continue'
         expect(page).to have_content("Payment has been successfully created!")
         click_icon(:capture)
         expect(page).to have_content("Payment Updated")
