@@ -50,7 +50,8 @@ en:
         preferred_currency: Currency
         preferred_tiers: Tiers
       spree/carton:
-        tracking: Tracking
+        tracking: Tracking Number
+        shipped_at: Shipped At
       spree/country:
         iso: ISO
         iso3: ISO3
@@ -1620,7 +1621,7 @@ en:
     other_items_in_other: Other Items in Order
     out_of_stock: Out of Stock
     overview: Overview
-    package_from: package from
+    package_from: Package from
     pagination:
       next_page: next page &raquo;
       previous_page: ! '&laquo; previous page'
