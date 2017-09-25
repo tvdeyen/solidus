@@ -304,7 +304,9 @@ Spree.ready(function(){
         $(".js-shipment-edit").each(function(){
           var shipmentNumber = $('[data-shipment-number]', this).data('shipmentNumber')
           var shipment = order.get("shipments").find({number: shipmentNumber})
-          new ShipmentEditView({ el: this, model: shipment });
+          if (shipment) {
+            new ShipmentEditView({ el: this, model: shipment });
+          }
         });
       }
     });
