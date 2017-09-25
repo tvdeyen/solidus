@@ -477,8 +477,8 @@ en:
         one: Image
         other: Images
       spree/inventory_unit:
-        one: Inventory Unit
-        other: Inventory Units
+        one: Item
+        other: Items
       spree/legacy_user:
         one: User
         other: Users
