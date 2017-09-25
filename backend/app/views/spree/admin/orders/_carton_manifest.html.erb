@@ -1,6 +1,6 @@
 <% carton.manifest_for_order(order).each do |item| %>
   <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
-    <td class="item-image">
+    <td class="item-image align-center">
       <%= render 'spree/admin/shared/image', image: item.variant.display_image, size: :mini %>
     </td>
     <td class="item-name">

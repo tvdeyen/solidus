@@ -9,7 +9,8 @@
     </th>
   </tr>
   <tr>
-    <th colspan="2"><%= Spree::LineItem.human_attribute_name(:description) %></th>
+    <th></th>
+    <th><%= Spree::InventoryUnit.model_name.human %></th>
     <th><%= Spree::LineItem.human_attribute_name(:price) %></th>
     <th><%= Spree::LineItem.human_attribute_name(:quantity) %></th>
     <th class="item-total"><%= Spree::LineItem.human_attribute_name(:total) %></th>
