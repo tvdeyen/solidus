@@ -137,4 +137,11 @@ table {
       border-top: none;
     }
   }
+
+  // Bootstrap does not have a <tfoot> style. We should have one.
+  tfoot tr:first-of-type {
+    td, th {
+      border-top-width: 2px;
+    }
+  }
 }
