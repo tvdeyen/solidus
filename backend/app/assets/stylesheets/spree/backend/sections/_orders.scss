@@ -99,3 +99,10 @@ th, td {
     text-align: right;
   }
 }
+
+// Ugly fix for border width issue while editing a shipments shipping method
+.shipment-footer .edit-method.hidden {
+  th, td {
+    border-top-width: 2px;
+  }
+}

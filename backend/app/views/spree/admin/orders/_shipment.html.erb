@@ -72,7 +72,9 @@
 
     <tbody data-shipment-number="<%= shipment.number %>" data-order-number="<%= order.number %>">
       <%= render 'spree/admin/orders/shipment_manifest', { shipment_number: shipment.number, shipment_manifest: manifest_items } %>
+    </tbody>
 
+    <tfoot class="shipment-footer">
       <% unless shipment.shipped? %>
         <tr class="edit-shipping-method vertical-middle">
         </tr>
@@ -88,7 +90,7 @@
           </td>
         </tr>
       <% end %>
-    </tbody>
+    </tfoot>
   <% end %>
   </table>
 </div>

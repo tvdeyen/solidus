@@ -19,7 +19,9 @@
 
 <tbody data-hook="carton-details" data-carton-number="<%= carton.number %>" data-order-number="<%= order.number %>">
   <%= render 'spree/admin/orders/carton_manifest', carton: carton, order: order %>
+</tbody>
 
+<tfoot>
   <% if order.special_instructions.present? %>
     <tr class='special_instructions'>
       <td colspan="5">
@@ -74,4 +76,4 @@
       </td>
     </tr>
   <% end %>
-</tbody>
+</tfoot>
