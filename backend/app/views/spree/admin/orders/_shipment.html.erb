@@ -64,7 +64,7 @@
         <th colspan="2"><%= Spree::LineItem.human_attribute_name(:description) %></th>
         <th><%= Spree::LineItem.human_attribute_name(:price) %></th>
         <th><%= Spree::LineItem.human_attribute_name(:quantity) %></th>
-        <th><%= Spree::LineItem.human_attribute_name(:total) %></th>
+        <th class="item-total"><%= Spree::LineItem.human_attribute_name(:total) %></th>
         <th class="orders-actions actions" data-hook="admin_order_form_line_items_header_actions"></th>
       </tr>
     </thead>
