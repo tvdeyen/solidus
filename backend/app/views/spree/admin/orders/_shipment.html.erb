@@ -10,7 +10,7 @@
       <span class="shipment-number"><%= shipment.number %></span>
       -
       <span class="shipment-state"><%= t(shipment.state, scope: "spree.shipment_states") %></span>
-      <%= t('spree.package_from') %>
+      <%= t('spree.shipment_from') %>
       <strong class="stock-location-name" data-hook="stock-location-name">'<%= shipment.stock_location.name %>'</strong>
     </legend>
 
