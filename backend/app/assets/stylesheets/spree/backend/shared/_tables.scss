@@ -9,6 +9,20 @@ table {
     vertical-align: middle;
   }
 
+  // Border width fix for headers with multiple rows in one <thead>
+  thead {
+    // Unfortunately we have to reset the Bootstrap header style first
+    th, td {
+      border-bottom-width: 1px;
+    }
+    // in order to correct the Bootstrap header style at least.
+    tr:last-of-type {
+      th, td {
+        border-bottom-width: 2px;
+      }
+    }
+  }
+
   th, td {
     text-overflow: ellipsis;
 
