@@ -6,19 +6,10 @@
     <% end %>
   </div>
 
-  <div class="col-2">
+  <div class="col-3">
     <%= f.field_container :tax_code do %>
       <%= f.label :tax_code %>
       <%= f.text_field :tax_code, class: 'fullwidth' %>
-    <% end %>
-  </div>
-
-  <div class="col-1">
-    <%= f.field_container :is_default, class: ['checkbox'] do %>
-      <label>
-        <%= f.check_box :is_default %>
-        <%= Spree::TaxCategory.human_attribute_name(:is_default) %>
-      </label>
     <% end %>
   </div>
 
@@ -26,6 +17,15 @@
     <%= f.field_container :description do %>
       <%= f.label :description %><br>
       <%= f.text_area :description, class: 'fullwidth' %>
+    <% end %>
+  </div>
+
+  <div class="col-2">
+    <%= f.field_container :is_default, class: ['checkbox'] do %>
+      <label>
+        <%= f.check_box :is_default %>
+        <%= Spree::TaxCategory.human_attribute_name(:is_default) %>
+      </label>
     <% end %>
   </div>
 </div>
