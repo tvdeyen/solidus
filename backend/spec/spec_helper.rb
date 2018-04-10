@@ -39,6 +39,7 @@ require 'spree/testing_support/capybara_ext'
 require 'capybara-screenshot/rspec'
 Capybara.save_path = ENV['CIRCLE_ARTIFACTS'] if ENV['CIRCLE_ARTIFACTS']
 Capybara.exact = true
+Capybara.server = :webrick
 
 require "selenium/webdriver"
 
