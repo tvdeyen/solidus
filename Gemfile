@@ -28,7 +28,6 @@ group :backend, :frontend do
   gem 'capybara', '~> 3.0', require: false
   gem 'capybara-screenshot', github: 'tagliala/capybara-screenshot', branch: 'multiple-enhancements', require: false
   gem 'selenium-webdriver', require: false
-  gem 'poltergeist', '~> 1.9', require: false
 end
 
 group :frontend do
