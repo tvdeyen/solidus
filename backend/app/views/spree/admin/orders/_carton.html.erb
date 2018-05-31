@@ -43,7 +43,7 @@
     <th><%= Spree::Carton.human_attribute_name(:tracking) %></th>
     <td colspan="4" class="tracking-value">
       <% if carton.tracking.present? %>
-        <%= carton.tracking %>
+        <%= link_to_if carton.tracking_url, carton.tracking, carton.tracking_url, target: '_blank' %>
       <% else %>
         <i><%= t('spree.no_tracking_present') %></i>
       <% end %>
