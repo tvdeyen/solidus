@@ -26,30 +26,6 @@
   </fieldset>
 
   <table class="stock-contents shipment index" data-hook="stock-contents">
-  <% if shipment.shipped? %>
-    <colgroup>
-      <col style="width: 10%;" />
-      <col style="width: 45%;" />
-      <col style="width: 15%;" />
-      <col style="width: 15%;" />
-      <col style="width: 15%;" />
-    </colgroup>
-
-    <thead class="shipped-shipment-header">
-      <tr class="show-method total">
-        <th><%= Spree::ShippingMethod.model_name.human %></th>
-        <td colspan="3">
-          <%= shipment.selected_shipping_rate.name %>
-        </td>
-        <td class="total">
-          <%= shipment.display_cost %>
-        </td>
-      </tr>
-    </thead>
-
-    <%= render partial: "spree/admin/orders/carton", collection: shipment.cartons.order(:shipped_at),
-      locals: { order: order, shipment: shipment } %>
-  <% else %>
     <colgroup>
       <col style="width: 17.5%;" />
       <col style="width: 30%;" />
@@ -91,6 +67,20 @@
         </tr>
       <% end %>
     </tfoot>
-  <% end %>
   </table>
+
+  <% if shipment.cartons.any? %>
+  <table class="table">
+    <colgroup>
+      <col style="width: 10%;" />
+      <col style="width: 45%;" />
+      <col style="width: 15%;" />
+      <col style="width: 15%;" />
+      <col style="width: 15%;" />
+    </colgroup>
+
+    <%= render partial: "spree/admin/orders/carton", collection: shipment.cartons.order(:shipped_at),
+      locals: { order: order, shipment: shipment } %>
+  </table>
+  <% end %>
 </div>
