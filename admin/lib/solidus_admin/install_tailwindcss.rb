@@ -8,7 +8,7 @@ input_path = "app/assets/stylesheets/solidus_admin/application.tailwind.css"
 output_path = "app/assets/builds/solidus_admin/tailwind.css"
 
 unless bundle_command "show tailwindcss-rails"
-  bundle_command "add tailwindcss-rails"
+  bundle_command "add tailwindcss-rails --version '~>3.0'"
 end
 
 # Copy the Tailwind CSS main file.
@@ -39,7 +39,7 @@ create_file "lib/tasks/solidus_admin/tailwind.rake", <<~RUBY
   namespace :solidus_admin do
     namespace :tailwindcss do
       root = Rails.root
-      tailwindcss = Tailwindcss::Commands.executable
+      tailwindcss = Tailwindcss::Ruby.executable
 
       tailwindcss_command = [
         tailwindcss,

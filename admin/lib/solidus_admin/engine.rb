@@ -3,6 +3,7 @@
 require "stimulus-rails"
 require "turbo-rails"
 require "view_component"
+require "blueprinter"
 
 module SolidusAdmin
   class Engine < ::Rails::Engine
@@ -62,6 +63,12 @@ module SolidusAdmin
         SolidusAdmin::Engine.root.join("app/javascript"),
         SolidusAdmin::Engine.root.join("app/components"),
       ]
+    end
+
+    initializer "solidus_admin.routing_proxies" do |app|
+      ActiveSupport.on_load(:after_routes_loaded) do
+        SolidusAdmin::BaseComponent.include app.routes.mounted_helpers
+      end
     end
   end
 end

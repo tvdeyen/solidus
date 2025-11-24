@@ -16,10 +16,10 @@ require 'database_cleaner'
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
+require 'spree/testing_support/bus_helpers'
 require 'spree/testing_support/factory_bot'
 require 'spree/testing_support/preferences'
 require 'spree/testing_support/rake'
-require 'spree/testing_support/job_helpers'
 require 'cancan/matchers'
 
 ActiveJob::Base.queue_adapter = :test
@@ -45,7 +45,8 @@ RSpec.configure do |config|
     Rails.cache.clear
   end
 
-  config.include Spree::TestingSupport::JobHelpers
+  config.include Spree::TestingSupport::BusHelpers
+  config.include ActiveJob::TestHelper
 
   config.include FactoryBot::Syntax::Methods
 end

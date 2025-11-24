@@ -26,6 +26,7 @@ module Spree
     include ::Spree::Config.state_machines.order
 
     include Spree::Order::Payments
+    include Metadata
 
     class InsufficientStock < StandardError
       attr_reader :items
@@ -51,7 +52,8 @@ module Spree
       :total_available_store_credit,
       :item_total_before_tax,
       :shipment_total_before_tax,
-      :item_total_excluding_vat
+      :item_total_excluding_vat,
+      :promo_total
     )
     alias :display_ship_total :display_shipment_total
 
@@ -62,7 +64,7 @@ module Spree
       go_to_state :confirm
     end
 
-    self.allowed_ransackable_associations = %w[shipments user order_promotions promotions bill_address ship_address line_items]
+    self.allowed_ransackable_associations = %w[shipments user bill_address ship_address line_items]
     self.allowed_ransackable_attributes = %w[completed_at created_at email number state payment_state shipment_state total store_id]
 
     attr_reader :coupon_code
@@ -100,7 +102,7 @@ module Spree
     has_many :cartons, -> { distinct }, through: :inventory_units
 
     # Adjustments and promotions
-    has_many :adjustments, -> { order(:created_at) }, as: :adjustable, inverse_of: :adjustable, dependent: :destroy
+    has_many :adjustments, -> { order(:created_at) }, as: :adjustable, inverse_of: :adjustable, dependent: :destroy, autosave: true
     has_many :line_item_adjustments, through: :line_items, source: :adjustments
     has_many :shipment_adjustments, through: :shipments, source: :adjustments
     has_many :all_adjustments,
@@ -163,8 +165,24 @@ module Spree
     delegate :name, to: :bill_address, prefix: true, allow_nil: true
     alias_method :billing_name, :bill_address_name
 
-    class_attribute :line_item_comparison_hooks
-    self.line_item_comparison_hooks = Set.new
+    delegate :line_item_comparison_hooks, to: :class
+    class << self
+      def line_item_comparison_hooks=(value)
+        Spree::Config.line_item_comparison_hooks = value.to_a
+      end
+      line_item_hooks_deprecation_msg = "Use Spree::Config.line_item_comparison_hooks instead."
+      deprecate :line_item_comparison_hooks= => line_item_hooks_deprecation_msg, :deprecator => Spree.deprecator
+
+      def line_item_comparison_hooks
+        Spree::Config.line_item_comparison_hooks
+      end
+      deprecate line_item_comparison_hooks: line_item_hooks_deprecation_msg, deprecator: Spree.deprecator
+
+      def register_line_item_comparison_hook(hook)
+        Spree::Config.line_item_comparison_hooks << hook
+      end
+      deprecate register_line_item_comparison_hook: line_item_hooks_deprecation_msg, deprecator: Spree.deprecator
+    end
 
     scope :created_between, ->(start_date, end_date) { where(created_at: start_date..end_date) }
     scope :completed_between, ->(start_date, end_date) { where(completed_at: start_date..end_date) }
@@ -179,7 +197,7 @@ module Spree
     end
 
     def self.by_state(state)
-      where(state: state)
+      where(state:)
     end
 
     def self.complete
@@ -196,12 +214,6 @@ module Spree
 
     def self.not_canceled
       where.not(state: 'canceled')
-    end
-
-    # Use this method in other gems that wish to register their own custom logic
-    # that should be called when determining if two line items are equal.
-    def self.register_line_item_comparison_hook(hook)
-      line_item_comparison_hooks.add(hook)
     end
 
     # For compatiblity with Calculator::PriceSack
@@ -314,7 +326,7 @@ module Spree
 
       if persisted?
         # immediately persist the changes we just made, but don't use save since we might have an invalid address associated
-        self.class.unscoped.where(id: id).update_all(attrs_to_set)
+        self.class.unscoped.where(id:).update_all(attrs_to_set)
       end
 
       assign_attributes(attrs_to_set)
@@ -356,7 +368,7 @@ module Spree
     def line_item_options_match(line_item, options)
       return true unless options
 
-      line_item_comparison_hooks.all? { |hook|
+      Spree::Config.line_item_comparison_hooks.all? { |hook|
         send(hook, line_item, options)
       }
     end
@@ -406,7 +418,7 @@ module Spree
 
     def fulfill!
       shipments.each { |shipment| shipment.update_state if shipment.persisted? }
-      recalculator.update_shipment_state
+      recalculator.recalculate_shipment_state
       save!
     end
 
@@ -570,7 +582,7 @@ module Spree
 
     def add_store_credit_payments
       return if user.nil?
-      return if payments.store_credits.checkout.empty? && user.available_store_credit_total(currency: currency).zero?
+      return if payments.store_credits.checkout.empty? && user.available_store_credit_total(currency:).zero?
 
       payments.store_credits.checkout.each(&:invalidate!)
 
@@ -581,7 +593,7 @@ module Spree
 
       remaining_total = outstanding_balance - authorized_total
 
-      matching_store_credits = user.store_credits.where(currency: currency)
+      matching_store_credits = user.store_credits.where(currency:)
 
       if matching_store_credits.any?
         payment_method = Spree::PaymentMethod::StoreCredit.first
@@ -593,7 +605,7 @@ module Spree
 
           amount_to_take = [credit.amount_remaining, remaining_total].min
           payments.create!(source: credit,
-                           payment_method: payment_method,
+                           payment_method:,
                            amount: amount_to_take,
                            state: 'checkout',
                            response_code: credit.generate_authorization_code)
@@ -617,13 +629,13 @@ module Spree
 
     def covered_by_store_credit?
       return false unless user
-      user.available_store_credit_total(currency: currency) >= total
+      user.available_store_credit_total(currency:) >= total
     end
     alias_method :covered_by_store_credit, :covered_by_store_credit?
 
     def total_available_store_credit
       return 0.0 unless user
-      user.available_store_credit_total(currency: currency)
+      user.available_store_credit_total(currency:)
     end
 
     def order_total_after_store_credit
@@ -634,16 +646,16 @@ module Spree
       if can_complete? || complete?
         valid_store_credit_payments.to_a.sum(&:amount)
       else
-        [total, user.try(:available_store_credit_total, currency: currency) || 0.0].min
+        [total, user.try(:available_store_credit_total, currency:) || 0.0].min
       end
     end
 
     def display_total_applicable_store_credit
-      Spree::Money.new(-total_applicable_store_credit, { currency: currency })
+      Spree::Money.new(-total_applicable_store_credit, { currency: })
     end
 
     def display_store_credit_remaining_after_capture
-      Spree::Money.new(total_available_store_credit - total_applicable_store_credit, { currency: currency })
+      Spree::Money.new(total_available_store_credit - total_applicable_store_credit, { currency: })
     end
 
     def bill_address_attributes=(attributes)
@@ -746,13 +758,13 @@ module Spree
       all_adjustments.each(&:finalize!)
 
       # update payment and shipment(s) states, and save
-      recalculator.update_payment_state
+      recalculator.recalculate_payment_state
       shipments.each do |shipment|
         shipment.update_state
         shipment.finalize!
       end
 
-      recalculator.update_shipment_state
+      recalculator.recalculate_shipment_state
       save!
 
       touch :completed_at
@@ -833,9 +845,10 @@ module Spree
       cancel_shipments!
       cancel_payments!
 
-      send_cancel_email
       update_column(:canceled_at, Time.current)
       recalculate
+
+      Spree::Bus.publish :order_canceled, order: self
     end
 
     def cancel_shipments!
@@ -849,10 +862,6 @@ module Spree
 
         payment.cancel!
       end
-    end
-
-    def send_cancel_email
-      Spree::Config.order_mailer_class.cancel_email(self).deliver_later
     end
 
     def after_resume

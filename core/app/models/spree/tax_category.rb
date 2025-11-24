@@ -11,7 +11,7 @@ module Spree
     end
 
     validates :name, presence: true
-    validates_uniqueness_of :name, case_sensitive: true, unless: :deleted_at
+    validates :name, uniqueness: { case_sensitive: true, unless: :deleted_at }
 
     has_many :tax_rate_tax_categories,
       class_name: 'Spree::TaxRateTaxCategory',
@@ -30,7 +30,7 @@ module Spree
 
     def ensure_one_default
       if is_default
-        Spree::TaxCategory.where(is_default: true).where.not(id: id).update_all(is_default: false, updated_at: Time.current)
+        Spree::TaxCategory.where(is_default: true).where.not(id:).update_all(is_default: false, updated_at: Time.current)
       end
     end
   end

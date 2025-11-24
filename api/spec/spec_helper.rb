@@ -5,6 +5,10 @@ if ENV["COVERAGE"]
   if ENV["COVERAGE_DIR"]
     SimpleCov.coverage_dir(ENV["COVERAGE_DIR"])
   end
+  if ENV["GITHUB_ACTIONS"]
+    require "simplecov-cobertura"
+    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  end
   SimpleCov.command_name('solidus:api')
   SimpleCov.merge_timeout(3600)
   SimpleCov.start('rails')
@@ -34,7 +38,6 @@ require 'spree/testing_support/factory_bot'
 require 'spree/testing_support/partial_double_verification'
 require 'spree/testing_support/preferences'
 require 'spree/testing_support/authorization_helpers'
-require 'spree/testing_support/job_helpers'
 
 require 'spree/api/testing_support/caching'
 require 'spree/api/testing_support/helpers'
@@ -45,6 +48,11 @@ ActiveJob::Base.queue_adapter = :test
 Spree::TestingSupport::FactoryBot.add_paths_and_load!
 
 RSpec.configure do |config|
+  if ENV["GITHUB_ACTIONS"]
+    require "rspec/github"
+    config.add_formatter RSpec::Github::Formatter
+  end
+
   config.backtrace_exclusion_patterns = [/gems\/activesupport/, /gems\/actionpack/, /gems\/rspec/]
   config.color = true
   config.infer_spec_type_from_file_location!
@@ -61,7 +69,7 @@ RSpec.configure do |config|
   config.include Spree::Api::TestingSupport::Helpers, type: :controller
   config.extend Spree::Api::TestingSupport::Setup, type: :controller
   config.include Spree::TestingSupport::Preferences
-  config.include Spree::TestingSupport::JobHelpers
+  config.include ActiveJob::TestHelper
 
   config.before(:each) do
     Rails.cache.clear

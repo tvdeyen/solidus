@@ -23,7 +23,7 @@ module Spree
 
     has_many :product_properties, dependent: :destroy, inverse_of: :product
     has_many :properties, through: :product_properties
-    has_many :variant_property_rules
+    has_many :variant_property_rules, dependent: :destroy
     has_many :variant_property_rule_values, through: :variant_property_rules, source: :values
     has_many :variant_property_rule_conditions, through: :variant_property_rules, source: :conditions
 
@@ -31,18 +31,21 @@ module Spree
     has_many :taxons, through: :classifications, before_remove: :remove_taxon
 
     belongs_to :tax_category, class_name: 'Spree::TaxCategory', optional: true
-    belongs_to :shipping_category, class_name: 'Spree::ShippingCategory', inverse_of: :products, optional: true
+    belongs_to :shipping_category, class_name: 'Spree::ShippingCategory', inverse_of: :products
+    belongs_to :primary_taxon, class_name: 'Spree::Taxon', optional: true
 
     has_one :master,
       -> { where(is_master: true).with_discarded },
       inverse_of: :product,
       class_name: 'Spree::Variant',
-      autosave: true
+      autosave: true,
+      dependent: false
 
     has_many :variants,
       -> { where(is_master: false).order(:position) },
       inverse_of: :product,
-      class_name: 'Spree::Variant'
+      class_name: 'Spree::Variant',
+      dependent: false
 
     has_many :variants_including_master,
       -> { order(:position) },
@@ -84,6 +87,8 @@ module Spree
       :track_inventory,
       :weight,
       :width,
+      :gtin,
+      :condition
     ]
     MASTER_ATTRIBUTES.each do |attr|
       delegate :"#{attr}", :"#{attr}=", to: :find_or_build_master
@@ -119,7 +124,6 @@ module Spree
     validates :meta_title, length: { maximum: 255 }
     validates :name, presence: true
     validates :price, presence: true, if: proc { Spree::Config[:require_master_price] }
-    validates :shipping_category_id, presence: true
     validates :slug, presence: true, uniqueness: { allow_blank: true, case_sensitive: true }
 
     attr_accessor :option_values_hash
@@ -250,7 +254,7 @@ module Spree
       ActiveRecord::Base.transaction do
         # Works around spree_i18n https://github.com/spree/spree/issues/301
         property = Spree::Property.create_with(presentation: property_name).find_or_create_by(name: property_name)
-        product_property = Spree::ProductProperty.where(product: self, property: property).first_or_initialize
+        product_property = Spree::ProductProperty.where(product: self, property:).first_or_initialize
         product_property.value = property_value
         product_property.save!
       end
@@ -266,10 +270,8 @@ module Spree
     #
     # @return [Fixnum, Infinity]
     def total_on_hand
-      if any_variants_not_track_inventory?
-        Float::INFINITY
-      else
-        stock_items.sum(:count_on_hand)
+      variants_including_master.sum do |variant|
+        Spree::Config.stock.quantifier_class.new(variant).total_on_hand
       end
     end
 
@@ -291,15 +293,11 @@ module Spree
       @gallery ||= Spree::Config.product_gallery_class.new(self)
     end
 
-    private
-
-    def any_variants_not_track_inventory?
-      if variants_including_master.loaded?
-        variants_including_master.any? { |variant| !variant.should_track_inventory? }
-      else
-        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).exists?
-      end
+    def brand
+      Spree::Config.brand_selector_class.new(self).call
     end
+
+    private
 
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
@@ -363,7 +361,7 @@ module Spree
     end
 
     def remove_taxon(taxon)
-      removed_classifications = classifications.where(taxon: taxon)
+      removed_classifications = classifications.where(taxon:)
       removed_classifications.each(&:remove_from_list)
     end
   end

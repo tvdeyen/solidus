@@ -20,6 +20,11 @@ end
 
 # @private
 class ApplicationRecord < ActiveRecord::Base
+  self.abstract_class = true
+end
+
+# @private
+class ApplicationJob < ActiveJob::Base
 end
 
 # @private
@@ -79,7 +84,7 @@ module DummyApp
       config.action_dispatch.show_exceptions = false
     end
     config.consider_all_requests_local = true
-    config.active_support.deprecation = :stderr
+    config.active_support.deprecation = ENV['RAILS_DEPRECATIONS_BEHAVIOR'].presence&.to_sym || :stderr
     config.log_level = :debug
 
     # Improve test suite performance:
@@ -92,6 +97,9 @@ module DummyApp
 
     # We don't want to send email in the test environment.
     config.action_mailer.delivery_method = :test
+
+    # Do not actually run background jobs
+    config.active_job.queue_adapter = :test
 
     # No need to use credentials file in a test environment.
     config.secret_key_base = 'SECRET_TOKEN'

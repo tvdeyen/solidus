@@ -7,10 +7,13 @@ module SolidusAdmin
   # BaseComponent is the base class for all components in Solidus Admin.
   class BaseComponent < ViewComponent::Base
     include SolidusAdmin::ComponentsHelper
+    include SolidusAdmin::StimulusHelper
+    include SolidusAdmin::VoidElementsHelper
+    include SolidusAdmin::SolidusFormHelper
     include Turbo::FramesHelper
 
     def icon_tag(name, **attrs)
-      render component("ui/icon").new(name: name, **attrs)
+      render component("ui/icon").new(name:, **attrs)
     end
 
     def missing_translation(key, options)
@@ -25,6 +28,10 @@ module SolidusAdmin
       end
     end
 
+    def self.i18n_scope
+      @i18n_scope ||= name.underscore.tr("/", ".")
+    end
+
     def self.stimulus_id
       @stimulus_id ||= name.underscore
         .sub(/^solidus_admin\/(.*)\/component$/, '\1')
@@ -33,13 +40,6 @@ module SolidusAdmin
     end
 
     delegate :stimulus_id, to: :class
-
-    def spree
-      @spree ||= Spree::Core::Engine.routes.url_helpers
-    end
-
-    def solidus_admin
-      @solidus_admin ||= SolidusAdmin::Engine.routes.url_helpers
-    end
+    delegate :search_filter_params, to: :helpers
   end
 end

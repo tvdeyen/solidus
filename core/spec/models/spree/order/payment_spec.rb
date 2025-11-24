@@ -18,17 +18,17 @@ module Spree
       let(:payment_method) { create(:credit_card_payment_method) }
 
       let!(:payment_1) do
-        create(:payment, payment_method: payment_method, order: order, amount: 50)
+        create(:payment, payment_method:, order:, amount: 50)
       end
 
       context 'sharing the same payment method' do
         let!(:payment_2) do
-          create(:payment, payment_method: payment_method, order: order, amount: 50)
+          create(:payment, payment_method:, order:, amount: 50)
         end
 
         it 'processes only new payments' do
           order.process_payments!
-          updater.update_payment_state
+          updater.recalculate_payment_state
 
           expect(order.payment_state).to eq('balance_due')
           expect(order.payment_total).to eq(50)
@@ -39,11 +39,11 @@ module Spree
       end
 
       context 'with different payment methods that are store credit' do
-        let!(:payment_2) { create(:store_credit_payment, order: order, amount: 50) }
+        let!(:payment_2) { create(:store_credit_payment, order:, amount: 50) }
 
         it 'processes all checkout payments' do
           order.process_payments!
-          updater.update_payment_state
+          updater.recalculate_payment_state
 
           expect(order.payment_state).to eq('paid')
           expect(order.payment_total).to eq(100)
@@ -53,11 +53,11 @@ module Spree
         end
 
         context 'with over paid payments' do
-          let!(:payment_3) { create(:store_credit_payment, order: order, amount: 50) }
+          let!(:payment_3) { create(:store_credit_payment, order:, amount: 50) }
 
           it 'does not go over total for order' do
             order.process_payments!
-            updater.update_payment_state
+            updater.recalculate_payment_state
 
             expect(order.payment_state).to eq('paid')
             expect(order.payment_total).to eq(100)
@@ -71,8 +71,8 @@ module Spree
       context 'with failed payments' do
         let!(:payment_2) do
           create(:payment,
-            payment_method: payment_method,
-            order: order,
+            payment_method:,
+            order:,
             amount: 50,
             state: 'failed')
         end
@@ -205,9 +205,9 @@ module Spree
           # Set the payment amount to actually be the order total of 110
           reimbursement.order.payments.first.update_column :amount, amount
           # Creates a refund of 110
-          create :refund, amount: amount,
+          create(:refund, amount:,
                           payment: reimbursement.order.payments.first,
-                          reimbursement: reimbursement
+                          reimbursement:)
           # Update the order totals so payment_total goes to 0 reflecting the refund..
           order.recalculate
         end

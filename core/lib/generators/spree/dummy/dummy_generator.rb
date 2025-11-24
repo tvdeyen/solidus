@@ -46,7 +46,7 @@ module Spree
       opts[:skip_javascript] = true
       opts[:skip_action_cable] = true
 
-      puts "Generating dummy Rails application..."
+      say "Generating dummy Rails application..."
       invoke Rails::Generators::AppGenerator,
         [File.expand_path(dummy_path, destination_root)], opts
     end
@@ -54,6 +54,7 @@ module Spree
     def test_dummy_config
       @lib_name = options[:lib_name]
       @database = options[:database]
+      @has_javascripts = Dir.exist?("#{dummy_path}/app/assets/javascripts")
 
       template "rails/database.yml", "#{dummy_path}/config/database.yml", force: true
       template "rails/storage.yml", "#{dummy_path}/config/storage/test.yml", force: true
@@ -61,7 +62,7 @@ module Spree
       template "rails/application.rb.tt", "#{dummy_path}/config/application.rb", force: true
       template "rails/routes.rb", "#{dummy_path}/config/routes.rb", force: true
       template "rails/test.rb", "#{dummy_path}/config/environments/test.rb", force: true
-      template "rails/script/rails", "#{dummy_path}/spec/dummy/script/rails", force: true
+      template "rails/manifest.js", "#{dummy_path}/app/assets/config/manifest.js", force: true
     end
 
     def test_dummy_inject_extension_requirements

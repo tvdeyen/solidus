@@ -22,11 +22,11 @@ class Spree::OrderShipping
       address: shipment.order.ship_address,
       shipping_method: shipment.shipping_method,
       shipped_at: Time.current,
-      external_number: external_number,
+      external_number:,
       # TODO: Remove the `|| shipment.tracking` once Shipment#ship! is called by
       # OrderShipping#ship rather than vice versa
       tracking_number: tracking_number || shipment.tracking,
-      suppress_mailer: suppress_mailer
+      suppress_mailer:
     )
   end
 
@@ -44,19 +44,19 @@ class Spree::OrderShipping
   # @return The carton created.
   def ship(inventory_units:, stock_location:, address:, shipping_method:,
            shipped_at: Time.current, external_number: nil, tracking_number: nil, suppress_mailer: false)
-
     carton = nil
 
     Spree::InventoryUnit.transaction do
       inventory_units.each(&:ship!)
 
       carton = Spree::Carton.create!(
-        stock_location: stock_location,
-        address: address,
-        shipping_method: shipping_method,
-        inventory_units: inventory_units,
-        shipped_at: shipped_at,
-        external_number: external_number,
+        stock_location:,
+        address:,
+        shipping_method:,
+        inventory_units:,
+        shipped_at:,
+        external_number:,
+        suppress_email: suppress_mailer,
         tracking: tracking_number
       )
     end
@@ -69,18 +69,10 @@ class Spree::OrderShipping
       end
     end
 
-    send_shipment_emails(carton) if stock_location.fulfillable? && !suppress_mailer # e.g. digital gift cards that aren't actually shipped
     @order.shipments.reload
     @order.recalculate
 
+    Spree::Bus.publish(:carton_shipped, carton:)
     carton
-  end
-
-  private
-
-  def send_shipment_emails(carton)
-    carton.orders.each do |order|
-      Spree::Config.carton_shipped_email_class.shipped_email(order: order, carton: carton).deliver_later
-    end
   end
 end

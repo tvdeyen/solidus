@@ -77,7 +77,10 @@ module Spree::Api
             phone:      '3014445002',
             zipcode:    '20814',
             state_id:   @state.id,
-            country_id: @country.id
+            country_id: @country.id,
+            email: 'john@doe.com',
+            vat_id: 'ab1235',
+            reverse_charge_status: 'disabled'
           }
         end
 
@@ -95,7 +98,14 @@ module Spree::Api
             } }
           expect(json_response['state']).to eq('delivery')
           expect(json_response['bill_address']['name']).to eq('John Doe')
+          expect(json_response['bill_address']['email']).to eq('john@doe.com')
+          expect(json_response['bill_address']['vat_id']).to eq('ab1235')
+          expect(json_response['bill_address']['reverse_charge_status']).to eq('disabled')
           expect(json_response['ship_address']['name']).to eq('John Doe')
+          expect(json_response['ship_address']['email']).to eq('john@doe.com')
+          expect(json_response['ship_address']['vat_id']).to eq('ab1235')
+          expect(json_response['ship_address']['reverse_charge_status']).to eq('disabled')
+
           expect(response.status).to eq(200)
         end
 
@@ -133,7 +143,7 @@ module Spree::Api
 
       it "can update shipping method and transition from delivery to payment" do
         order.update_column(:state, "delivery")
-        shipment = create(:shipment, order: order)
+        shipment = create(:shipment, order:)
         shipment.refresh_rates
         shipping_rate = shipment.shipping_rates.where(selected: false).first
         put spree.api_checkout_path(order.to_param), params: { order_token: order.guest_token, order: { shipments_attributes: { "0" => { selected_shipping_rate_id: shipping_rate.id, id: shipment.id } } } }
@@ -195,7 +205,7 @@ module Spree::Api
         end
 
         it 'sets the payment amount to the order total' do
-          put spree.api_checkout_path(order), params: params
+          put(spree.api_checkout_path(order), params:)
           expect(response.status).to eq(200)
           expect(json_response['payments'][0]['amount']).to eq(order.total.to_s)
         end
@@ -221,7 +231,7 @@ module Spree::Api
         end
 
         it 'succeeds' do
-          put spree.api_checkout_path(order), params: params
+          put(spree.api_checkout_path(order), params:)
           expect(response.status).to eq(200)
           expect(json_response['payments'][0]['payment_method']['name']).to eq(@payment_method.name)
           expect(json_response['payments'][0]['amount']).to eq(order.total.to_s)
@@ -248,7 +258,7 @@ module Spree::Api
         end
 
         it 'returns errors' do
-          put spree.api_checkout_path(order), params: params
+          put(spree.api_checkout_path(order), params:)
 
           expect(response.status).to eq(422)
           cc_errors = json_response['errors']['payments.Credit Card']
@@ -296,7 +306,7 @@ module Spree::Api
             receive(:verification_value=).with('456').and_call_original
           )
 
-          put spree.api_checkout_path(order), params: params
+          put(spree.api_checkout_path(order), params:)
 
           expect(response.status).to eq 200
           expect(order.credit_cards).to match_array [credit_card]
@@ -321,7 +331,7 @@ module Spree::Api
           }
         }
         expect do
-          put spree.api_checkout_path(order), params: params
+          put spree.api_checkout_path(order), params:
         end.not_to change { order.reload.ship_address.zipcode }
         expect(response.status).to eq(200)
       end
@@ -393,7 +403,7 @@ module Spree::Api
     context "complete" do
       context "with order in confirm state" do
         subject do
-          put spree.complete_api_checkout_path(order), params: params
+          put spree.complete_api_checkout_path(order), params:
         end
 
         let(:params) { { order_token: order.guest_token } }

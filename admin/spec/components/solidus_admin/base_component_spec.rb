@@ -9,7 +9,7 @@ RSpec.describe SolidusAdmin::BaseComponent, type: :component do
         def call
           icon_tag("user-line")
         end
-      end.new
+      end
 
       render_inline(component)
 
@@ -20,29 +20,25 @@ RSpec.describe SolidusAdmin::BaseComponent, type: :component do
 
   describe "#spree" do
     it "gives access to spree routing helpers" do
-      without_partial_double_verification do
-        allow(Spree::Core::Engine.routes.url_helpers).to receive(:foo_path).and_return("/foo/bar")
-      end
-      component = described_class.new
-
-      expect(component.spree.foo_path).to eq("/foo/bar")
+      expect(described_class.new).to respond_to(:spree)
     end
   end
 
   describe "#solidus_admin" do
     it "gives access to solidus_admin routing helpers" do
-      without_partial_double_verification do
-        allow(SolidusAdmin::Engine.routes.url_helpers).to receive(:foo_path).and_return("/foo/bar")
-      end
-      component = described_class.new
+      expect(described_class.new).to respond_to(:solidus_admin)
+    end
+  end
 
-      expect(component.solidus_admin.foo_path).to eq("/foo/bar")
+  describe "#main_app" do
+    it "gives access to main_app routing helpers" do
+      expect(described_class.new).to respond_to(:main_app)
     end
   end
 
   describe ".stimulus_id" do
     it "returns the stimulus id for the component" do
-      stub_const("SolidusAdmin::Foo::Bar::Component", Class.new(described_class))
+      mock_component("SolidusAdmin::Foo::Bar::Component") { erb_template "" }
 
       expect(SolidusAdmin::Foo::Bar::Component.stimulus_id).to eq("foo--bar")
       expect(SolidusAdmin::Foo::Bar::Component.new.stimulus_id).to eq("foo--bar")
@@ -55,8 +51,7 @@ RSpec.describe SolidusAdmin::BaseComponent, type: :component do
 
       allow(Rails.logger).to receive(:debug) { debug_logs << _1 }
 
-      component_class = stub_const("Foo::Component", Class.new(described_class){ erb_template "" })
-      component = component_class.new
+      component = mock_component { erb_template "" }
       render_inline(component)
       translation = component.translate("foo.bar.baz")
 

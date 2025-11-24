@@ -7,7 +7,7 @@ module Spree
         include Spree::CalculatedAdjustments
         include Spree::AdjustmentSource
 
-        has_many :adjustments, as: :source
+        has_many :adjustments, as: :source, dependent: :restrict_with_error
 
         delegate :eligible?, to: :promotion
 
@@ -37,7 +37,7 @@ module Spree
           order = adjustable.is_a?(Order) ? adjustable : adjustable.order
           return 0 unless promotion.line_item_actionable?(order, adjustable)
           promotion_amount = calculator.compute(adjustable)
-          promotion_amount ||= BigDecimal(0)
+          promotion_amount ||= Spree::ZERO
           promotion_amount = promotion_amount.abs
           [adjustable.amount, promotion_amount].min * -1
         end
@@ -63,9 +63,9 @@ module Spree
           return if amount == 0
           adjustable.adjustments.create!(
             source: self,
-            amount: amount,
-            order: order,
-            promotion_code: promotion_code,
+            amount:,
+            order:,
+            promotion_code:,
             label: I18n.t('spree.adjustment_labels.line_item', promotion: Spree::Promotion.model_name.human, promotion_name: promotion.name)
           )
           true

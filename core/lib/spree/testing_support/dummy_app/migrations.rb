@@ -4,24 +4,9 @@ module DummyApp
   module Migrations
     extend self
 
-    # Ensure database exists
-    def database_exists?
-      ActiveRecord::Base.connection
-    rescue ActiveRecord::NoDatabaseError
-      false
-    else
-      true
-    end
-
-    def needs_migration?
-      return true if !database_exists?
-
-      ActiveRecord::Base.connection.migration_context.needs_migration?
-    end
-
     def auto_migrate
       if needs_migration?
-        puts "Configuration changed. Re-running migrations"
+        Rails.logger.info "Configuration changed. Re-running migrations"
 
         # Disconnect to avoid "database is being accessed by other users" on postgres
         ActiveRecord::Base.remove_connection
@@ -35,8 +20,16 @@ module DummyApp
 
     private
 
+    def needs_migration?
+      ActiveRecord::Migration.check_all_pending!
+    rescue ActiveRecord::PendingMigrationError, ActiveRecord::NoDatabaseError
+      true
+    else
+      false
+    end
+
     def sh(cmd)
-      puts cmd
+      Rails.logger.info cmd
       system cmd
     end
   end

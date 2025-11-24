@@ -5,6 +5,10 @@ if ENV["COVERAGE"]
   if ENV["COVERAGE_DIR"]
     SimpleCov.coverage_dir(ENV["COVERAGE_DIR"])
   end
+  if ENV["GITHUB_ACTIONS"]
+    require "simplecov-cobertura"
+    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  end
   SimpleCov.command_name('solidus:core')
   SimpleCov.merge_timeout(3600)
   SimpleCov.start('rails')
@@ -22,6 +26,11 @@ require 'spree/config'
 require "solidus_legacy_promotions"
 
 RSpec.configure do |config|
+  if ENV["GITHUB_ACTIONS"]
+    require "rspec/github"
+    config.add_formatter RSpec::Github::Formatter
+  end
+
   config.disable_monkey_patching!
   config.color = true
   config.expect_with :rspec do |c|

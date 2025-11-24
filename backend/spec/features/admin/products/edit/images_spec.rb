@@ -7,8 +7,8 @@ describe "Product Images", type: :feature do
 
   let(:file_path) { file_fixture("ror_ringer.jpeg") }
   let!(:product)  { create(:product) }
-  let!(:variant1) { create(:variant, product: product) }
-  let!(:variant2) { create(:variant, product: product) }
+  let!(:variant1) { create(:variant, product:) }
+  let!(:variant2) { create(:variant, product:) }
 
   before do
     # Ensure attachment style keys are symbolized before running all tests
@@ -98,6 +98,7 @@ describe "Product Images", type: :feature do
         end
 
         click_button "Update"
+        expect(page).to have_content("Image has been successfully created!")
         invalidate_attachment(Spree::Image.first.attachment)
         visit current_path
         expect(page).to have_xpath("//img[contains(@src, 'assets/noimage/mini')]")

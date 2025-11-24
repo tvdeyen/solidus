@@ -22,14 +22,15 @@ Gem::Specification.new do |s|
   s.metadata["changelog_uri"] = "https://github.com/solidusio/solidus/releases?q=%22solidus_admin%2Fv0%22&expanded=true"
 
   s.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(spec|script)/})
+    f.match(%r{^(spec|bin)/})
   end + ["app/assets/builds/solidus_admin/tailwind.css"]
 
-  s.required_ruby_version = '>= 3.0.0'
+  s.required_ruby_version = '>= 3.1.0'
   s.required_rubygems_version = '>= 1.8.23'
 
+  s.add_dependency 'blueprinter'
   s.add_dependency 'geared_pagination', '~> 1.1'
-  s.add_dependency 'importmap-rails', '~> 1.2', '>= 1.2.1'
+  s.add_dependency 'importmap-rails', ['>= 2.0', '< 3']
   s.add_dependency 'solidus_backend'
   s.add_dependency 'solidus_core', '> 4.2'
   s.add_dependency 'stimulus-rails', '~> 1.2'

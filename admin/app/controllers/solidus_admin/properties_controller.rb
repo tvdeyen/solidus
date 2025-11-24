@@ -1,33 +1,15 @@
 # frozen_string_literal: true
 
 module SolidusAdmin
-  class PropertiesController < SolidusAdmin::BaseController
-    include SolidusAdmin::ControllerHelpers::Search
+  class PropertiesController < SolidusAdmin::ResourcesController
+    private
 
-    def index
-      properties = apply_search_to(
-        Spree::Property.order(created_at: :desc, id: :desc),
-        param: :q,
-      )
+    def resource_class = Spree::Property
 
-      set_page_and_extract_portion_from(
-        properties,
-      )
-
-      respond_to do |format|
-        format.html { render component('properties/index').new(page: @page) }
-      end
+    def permitted_resource_params
+      params.require(:property).permit(:name, :presentation)
     end
 
-    def destroy
-      @properties = Spree::Property.where(id: params[:id])
-
-      Spree::Property.transaction do
-        @properties.destroy_all
-      end
-
-      flash[:notice] = t('.success')
-      redirect_to properties_path, status: :see_other
-    end
+    def resources_collection = Spree::Property.unscoped
   end
 end

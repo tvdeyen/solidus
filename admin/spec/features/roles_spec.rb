@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'solidus_admin/testing_support/shared_examples/bulk_delete_resources'
 
-describe "Roles", :js, type: :feature do
+describe "Roles", type: :feature do
   before do
     sign_in create(:admin_user, email: 'admin@example.com')
   end
@@ -24,7 +25,7 @@ describe "Roles", :js, type: :feature do
     )
   }
 
-  it "lists roles and allows deleting them" do
+  it "lists roles and allows deleting them", :js do
     create(:role, name: "Customer Role" )
     Spree::Role.find_or_create_by(name: 'admin')
 
@@ -54,14 +55,17 @@ describe "Roles", :js, type: :feature do
     before do
       visit "/admin/roles#{query}"
       click_on "Add new"
+      expect(page).to have_selector("dialog", wait: 5)
       expect(page).to have_content("New Role")
+    end
+
+    it "is accessible", :js do
       expect(page).to be_axe_clean
     end
 
-    it "opens a modal" do
-      expect(page).to have_selector("dialog")
+    it "closing the modal keeps query params", :js do
       within("dialog") { click_on "Cancel" }
-      expect(page).not_to have_selector("dialog")
+      expect(page).not_to have_selector("dialog", wait: 5)
       expect(page.current_url).to include(query)
     end
 
@@ -120,17 +124,20 @@ describe "Roles", :js, type: :feature do
     before do
       Spree::Role.create(name: "Reviewer", permission_sets: [settings_edit_permission])
       visit "/admin/roles#{query}"
-      find_row("Reviewer").click
+      click_on "Reviewer"
+      expect(page).to have_selector("dialog", wait: 5)
       expect(page).to have_content("Edit Role")
-      expect(page).to be_axe_clean
       expect(Spree::Role.find_by(name: "Reviewer").permission_set_ids)
-        .to contain_exactly(settings_edit_permission.id)
+      .to contain_exactly(settings_edit_permission.id)
     end
 
-    it "opens a modal" do
-      expect(page).to have_selector("dialog")
+    it "is accessible", :js do
+      expect(page).to be_axe_clean
+    end
+
+    it "closing the modal keeps query params", :js do
       within("dialog") { click_on "Cancel" }
-      expect(page).not_to have_selector("dialog")
+      expect(page).not_to have_selector("dialog", wait: 5)
       expect(page.current_url).to include(query)
     end
 

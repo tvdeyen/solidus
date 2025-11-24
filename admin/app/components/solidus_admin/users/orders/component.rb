@@ -8,50 +8,6 @@ class SolidusAdmin::Users::Orders::Component < SolidusAdmin::BaseComponent
     @orders = orders
   end
 
-  def form_id
-    @form_id ||= "#{stimulus_id}--form-#{@user.id}"
-  end
-
-  def tabs
-    [
-      {
-        text: t('.account'),
-        href: solidus_admin.user_path(@user),
-        current: false,
-      },
-      {
-        text: t('.addresses'),
-        href: solidus_admin.addresses_user_path(@user),
-        current: false,
-      },
-      {
-        text: t('.order_history'),
-        href: solidus_admin.orders_user_path(@user),
-        current: true,
-      },
-      {
-        text: t('.items'),
-        href: spree.items_admin_user_path(@user),
-        current: false,
-      },
-      {
-        text: t('.store_credit'),
-        href: spree.admin_user_store_credits_path(@user),
-        current: false,
-      },
-    ]
-  end
-
-  def last_login(user)
-    return t('.last_login.never') if user.try(:last_sign_in_at).blank?
-
-    t(
-      '.last_login.login_time_ago',
-      # @note The second `.try` is only here for the specs to work.
-      last_login_time: time_ago_in_words(user.try(:last_sign_in_at))
-    ).capitalize
-  end
-
   def model_class
     Spree::Order
   end
@@ -120,7 +76,7 @@ class SolidusAdmin::Users::Orders::Component < SolidusAdmin::BaseComponent
     {
       header: :total,
       data: ->(order) do
-        content_tag :div, number_to_currency(order.total)
+        content_tag :div, order.display_total
       end
     }
   end

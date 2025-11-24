@@ -24,8 +24,10 @@ en:
         address2: Street Address (cont'd)
         city: City
         company: Company
+        email: Email
         name: Name
         phone: Phone
+        vat_id: VAT-ID
         zipcode: Zip Code
       spree/adjustment:
         adjustable: Adjustable
@@ -166,11 +168,13 @@ en:
         variant: Variant
       spree/product:
         available_on: Available On
+        condition: Master Condition
         cost_currency: Cost Currency
         cost_price: Cost Price
         depth: Depth
         description: Description
         discontinue_on: Discontinue on
+        gtin: Master GTIN
         height: Height
         master_price: Master Price
         meta_description: Meta Description
@@ -178,7 +182,10 @@ en:
         meta_title: Meta Title
         name: Name
         on_hand: On Hand
+        option_type_ids: Option Types
         price: Master Price
+        primary_taxon: Primary Taxon
+        primary_taxon_id: Primary Taxon
         promotionable: Promotable
         shipping_category: Shipping Category
         sku: Master SKU
@@ -416,9 +423,11 @@ en:
         password_confirmation: Password Confirmation
         spree_roles: Roles
       spree/variant:
+        condition: Condition
         cost_currency: Cost Currency
         cost_price: Cost Price
         depth: Depth
+        gtin: GTIN
         height: Height
         price: Price
         shipping_category: Variant Shipping Category
@@ -427,8 +436,10 @@ en:
         weight: Weight
         width: Width
       spree/zone:
+        country_ids: Countries
         description: Description
         name: Name
+        state_ids: States
     errors:
       models:
         spree/address:
@@ -1075,6 +1086,8 @@ en:
     billing: Billing
     billing_address: Billing Address
     both: Both
+    brand: Brand
+    brands: Brands
     calculated_reimbursements: Calculated Reimbursements
     calculator: Calculator
     calculator_settings_warning: If you are changing the calculator type or preference source, you must save first before you can edit the calculator settings
@@ -1130,6 +1143,11 @@ en:
     company: Company
     complete: complete
     complete_order: Complete Order
+    condition:
+      damaged: Damaged
+      new: New
+      refurbished: Refurbished
+      used: Used
     configuration: Configuration
     configurations: Configurations
     confirm: Confirm
@@ -1516,6 +1534,7 @@ en:
     end: End
     ending_in: Ending in
     error: error
+    error_user_destroy_with_orders: Cannot delete a user with orders
     errors:
       messages:
         cannot_delete_finalized_stock_location: Stock Location cannot be destroyed if you have open stock transfers.
@@ -2078,6 +2097,10 @@ en:
     return_quantity: Return Quantity
     return_reasons: Return Reasons
     returned: Returned
+    reverse_charge_statuses:
+      disabled: Disabled
+      enabled: Enabled
+      not_validated: Not Validated
     review: Review
     risk: Risk
     risk_analysis: Risk Analysis
@@ -2096,6 +2119,7 @@ en:
     scope: Scope
     search: Search
     search_results: Search results for '%{keywords}'
+    search_results_all: Show all results for '%{keywords}'
     searching: Searching
     secure_connection_type: Secure Connection Type
     security_settings: Security Settings
@@ -2309,6 +2333,7 @@ en:
     unfinalize_all_adjustments: Unfinalize All Adjustments
     unlock: Unlock
     unrecognized_card_type: Unrecognized Card Type
+    unset: Unset
     unshippable_items: Unshippable Items
     update: Update
     updated_successfully: Updated Successfully
@@ -2339,6 +2364,7 @@ en:
     variant_to_add: Variant to add
     variant_to_be_received: Variant to be received
     variants: Variants
+    vat_id: VAT-ID
     version: Version
     view_product: View Product On Store
     void: Void

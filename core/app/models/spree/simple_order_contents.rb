@@ -81,12 +81,15 @@ module Spree
 
       line_item ||= order.line_items.new(
         quantity: 0,
-        variant: variant,
+        variant:,
         adjustments: []
       )
 
+      permitted_attributes = Spree::PermittedAttributes.line_item_attributes.dup
+      permitted_attributes << { admin_metadata: {} } if options[:admin_metadata].present?
+
       line_item.quantity += quantity.to_i
-      line_item.options = ActionController::Parameters.new(options).permit(PermittedAttributes.line_item_attributes).to_h
+      line_item.options = ActionController::Parameters.new(options).permit(permitted_attributes).to_h
 
       line_item.target_shipment = options[:shipment]
       line_item.save!

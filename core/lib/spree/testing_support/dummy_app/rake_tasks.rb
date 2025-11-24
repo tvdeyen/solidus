@@ -10,8 +10,8 @@ module DummyApp
         require lib_name
         require 'spree/testing_support/dummy_app'
         DummyApp.setup(
-          gem_root: gem_root,
-          lib_name: lib_name,
+          gem_root:,
+          lib_name:,
           auto_migrate: false
         )
       end
@@ -50,12 +50,6 @@ end
 
 desc "Open a sandboxed console in the test environment"
 task console: :dummy_environment do
-  begin
-    require 'pry'
-    Rails.application.config.console = Pry
-  rescue LoadError
-  end
-
   require 'rails/commands'
   require 'rails/commands/console/console_command'
   Rails::Console.new(Rails.application, sandbox: true, environment: "test").start

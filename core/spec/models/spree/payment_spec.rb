@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Spree::Payment, type: :model do
   let(:store) { create :store }
-  let(:order) { Spree::Order.create(store: store) }
+  let(:order) { Spree::Order.create(store:) }
   let(:refund_reason) { create(:refund_reason) }
 
   let(:gateway) do
@@ -268,7 +268,7 @@ RSpec.describe Spree::Payment, type: :model do
 
       describe 'billing_address option' do
         context 'when the source is a credit card with an address' do
-          let(:card) { create(:credit_card, address: address) }
+          let(:card) { create(:credit_card, address:) }
           let(:address) { create(:address) }
 
           it 'sends the credit card address' do
@@ -672,7 +672,7 @@ RSpec.describe Spree::Payment, type: :model do
       payment.amount = 100
 
       expect {
-        create(:refund, payment: payment, amount: 80)
+        create(:refund, payment:, amount: 80)
       }.to change { payment.credit_allowed }.from(100).to(20)
     end
   end
@@ -700,8 +700,8 @@ RSpec.describe Spree::Payment, type: :model do
 
     context 'when refund total equals payment amount' do
       before do
-        create(:refund, payment: payment, amount: 50)
-        create(:refund, payment: payment, amount: 50)
+        create(:refund, payment:, amount: 50)
+        create(:refund, payment:, amount: 50)
       end
 
       it { is_expected.to be true }
@@ -711,7 +711,7 @@ RSpec.describe Spree::Payment, type: :model do
   describe "#save" do
     context "captured payments" do
       it "update order payment total" do
-        payment = create(:payment, order: order, state: 'completed')
+        payment = create(:payment, order:, state: 'completed')
         expect(order.payment_total).to eq payment.amount
       end
     end
@@ -719,7 +719,7 @@ RSpec.describe Spree::Payment, type: :model do
     context "not completed payments" do
       it "doesn't update order payment total" do
         expect {
-          Spree::Payment.create(amount: 100, order: order)
+          Spree::Payment.create(amount: 100, order:)
         }.not_to change { order.payment_total }
       end
     end
@@ -728,7 +728,7 @@ RSpec.describe Spree::Payment, type: :model do
       let(:payment) do
         Spree::Payment.create(
           amount: 100,
-          order: order,
+          order:,
           state: 'completed'
         )
       end
@@ -744,9 +744,9 @@ RSpec.describe Spree::Payment, type: :model do
       before { allow(order).to receive_messages completed?: true }
 
       it "updates payment_state and shipments" do
-        expect(order.recalculator).to receive(:update_payment_state)
-        expect(order.recalculator).to receive(:update_shipment_state)
-        Spree::Payment.create!(amount: 100, order: order, payment_method: payment_method)
+        expect(order.recalculator).to receive(:recalculate_payment_state)
+        expect(order.recalculator).to receive(:recalculate_shipment_state)
+        Spree::Payment.create!(amount: 100, order:, payment_method:)
       end
     end
 
@@ -762,7 +762,7 @@ RSpec.describe Spree::Payment, type: :model do
           expect do
             Spree::Payment.create(
               amount: 100,
-              order: order,
+              order:,
               source: card,
               payment_method: gateway
             )
@@ -798,7 +798,7 @@ RSpec.describe Spree::Payment, type: :model do
           expect(payment.payment_method).to receive :create_profile
           Spree::Payment.create(
             amount: 100,
-            order: order,
+            order:,
             source: card,
             payment_method: gateway
           )
@@ -813,7 +813,7 @@ RSpec.describe Spree::Payment, type: :model do
         expect(gateway).not_to receive :create_profile
         Spree::Payment.create(
           amount: 100,
-          order: order,
+          order:,
           source: card,
           payment_method: gateway
         )
@@ -824,7 +824,7 @@ RSpec.describe Spree::Payment, type: :model do
   describe '#invalidate_old_payments' do
     it 'should not invalidate other payments if not valid' do
       payment.save
-      invalid_payment = Spree::Payment.new(amount: 100, order: order, state: 'invalid', payment_method: gateway)
+      invalid_payment = Spree::Payment.new(amount: 100, order:, state: 'invalid', payment_method: gateway)
       invalid_payment.save
       expect(payment.reload.state).to eq('checkout')
     end
@@ -834,7 +834,7 @@ RSpec.describe Spree::Payment, type: :model do
         create(:payment,
           payment_method: existing_payment_method,
           source: existing_payment_source,
-          order: order,
+          order:,
           amount: 5)
       end
 
@@ -842,9 +842,9 @@ RSpec.describe Spree::Payment, type: :model do
       let(:payment_source) { create(:credit_card) }
       let(:payment) do
         build(:payment,
-          payment_method: payment_method,
+          payment_method:,
           source: payment_source,
-          order: order,
+          order:,
           amount: 5)
       end
 
@@ -939,7 +939,7 @@ RSpec.describe Spree::Payment, type: :model do
     end
 
     context 'with an existing credit card' do
-      let(:order) { create(:order, user: user) }
+      let(:order) { create(:order, user:) }
       let(:user) { create(:user) }
       let!(:credit_card) { create(:credit_card, user_id: order.user_id) }
       let!(:wallet_payment_source) { user.wallet.add(credit_card) }
@@ -1049,7 +1049,7 @@ RSpec.describe Spree::Payment, type: :model do
       # Sets the payment's order to a different Ruby object entirely
       payment.order = Spree::Order.find(payment.order_id)
       email = 'foo@example.com'
-      order.update(email: email)
+      order.update(email:)
       expect(payment.gateway_options[:email]).to eq(email)
     end
   end
@@ -1146,7 +1146,7 @@ RSpec.describe Spree::Payment, type: :model do
         # this is a strange default for ActiveRecord
 
         it '#amount' do
-          expect(subject.amount).to eql(BigDecimal('0'))
+          expect(subject.amount).to eql(Spree::ZERO)
         end
       end
 
@@ -1264,14 +1264,16 @@ RSpec.describe Spree::Payment, type: :model do
   # The need for this was discovered in the research for https://github.com/spree/spree/issues/4072
   context "state changes" do
     it "are logged to the database" do
-      expect(payment.state_changes).to be_empty
-      expect(payment.process!).to be true
-      expect(payment.state_changes.count).to eq(2)
-      changes = payment.state_changes.map { |change| { change.previous_state => change.next_state } }
-      expect(changes).to match_array([
-        { "checkout" => "processing" },
-        { "processing" => "pending" }
-      ])
+      perform_enqueued_jobs do
+        expect(payment.state_changes).to be_empty
+        expect(payment.process!).to be true
+        expect(payment.state_changes.count).to eq(2)
+        changes = payment.state_changes.map { |change| { change.previous_state => change.next_state } }
+        expect(changes).to match_array([
+          { "checkout" => "processing" },
+          { "processing" => "pending" }
+        ])
+      end
     end
   end
 
@@ -1329,6 +1331,66 @@ RSpec.describe Spree::Payment, type: :model do
 
     it 'does not include void, failed and invalid payments' do
       expect(described_class.valid).to be_empty
+    end
+  end
+
+  it_behaves_like "customer and admin metadata fields: storage and validation", :payment
+
+  describe "state change tracking" do
+    it "enqueues a StateChangeTrackingJob when state changes" do
+      expect {
+        payment.update!(state: 'completed')
+      }.to have_enqueued_job(Spree::StateChangeTrackingJob).with(
+        payment,
+        'checkout',
+        'completed',
+        kind_of(Time)
+      )
+    end
+
+    it "does not enqueue job when state doesn't change" do
+      expect {
+        payment.update!(amount: '100.00')
+      }.not_to have_enqueued_job(Spree::StateChangeTrackingJob)
+    end
+
+    it "captures the transition timestamp accurately" do
+      before_time = Time.current
+
+      payment.update!(state: 'completed')
+
+      # Check that a job was enqueued with a timestamp close to when we made the change
+      expect(Spree::StateChangeTrackingJob).to have_been_enqueued.with do |payment_id, prev_state, next_state, timestamp|
+        expect(payment_id).to eq(payment.id)
+        expect(prev_state).to eq('pending')
+        expect(next_state).to eq('completed')
+        expect(timestamp).to be_within(1.second).of(before_time)
+      end
+    end
+
+    it "creates multiple state transitions" do
+      clear_enqueued_jobs
+
+      payment.update!(state: 'pending')
+      payment.update!(state: 'processing')
+      payment.update!(state: 'completed')
+
+      expect(Spree::StateChangeTrackingJob).to have_been_enqueued.exactly(3).times
+    end
+
+    it "creates state change records when job is performed" do
+      perform_enqueued_jobs do
+        expect {
+          payment.update!(state: 'completed')
+        }.to change(Spree::StateChange, :count).by(1)
+      end
+
+      state_change = Spree::StateChange.last
+      expect(state_change.previous_state).to eq('checkout')
+      expect(state_change.next_state).to eq('completed')
+      expect(state_change.stateful_id).to eq(payment.id)
+      expect(state_change.stateful_type).to eq('Spree::Payment')
+      expect(state_change.name).to eq('payment')
     end
   end
 end

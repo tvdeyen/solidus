@@ -9,6 +9,8 @@ SolidusAdmin::Engine.routes.draw do
     get 'states', to: 'countries#states'
   end
 
+  resources :states, only: [:index], defaults: { format: :json }
+
   admin_resources :products, only: [:index, :update, :destroy] do
     collection do
       put :discontinue
@@ -50,11 +52,23 @@ SolidusAdmin::Engine.routes.draw do
       get :addresses
       put :update_addresses
       get :orders
+      get :items
+    end
+
+    resources :store_credits, only: [:index, :show, :new, :create], controller: "store_credits" do
+      member do
+        get :edit_amount
+        put :update_amount
+        get :edit_memo
+        put :update_memo
+        get :edit_validity
+        put :invalidate
+      end
     end
   end
 
   admin_resources :promotions, only: [:index, :destroy]
-  admin_resources :properties, only: [:index, :destroy]
+  admin_resources :properties, except: [:show]
   admin_resources :option_types, only: [:index, :destroy], sortable: true
   admin_resources :taxonomies, only: [:index, :destroy], sortable: true
   admin_resources :promotion_categories, only: [:index, :destroy]
@@ -64,13 +78,14 @@ SolidusAdmin::Engine.routes.draw do
   admin_resources :stock_items, only: [:index, :edit, :update]
   admin_resources :shipping_methods, only: [:index, :destroy]
   admin_resources :shipping_categories, except: [:show]
-  admin_resources :stock_locations, only: [:index, :destroy]
+  admin_resources :stock_locations, except: [:show]
   admin_resources :stores, only: [:index, :destroy]
-  admin_resources :zones, only: [:index, :destroy]
+  admin_resources :zones, except: [:show]
   admin_resources :refund_reasons, except: [:show]
   admin_resources :reimbursement_types, only: [:index]
   admin_resources :return_reasons, except: [:show]
   admin_resources :roles, except: [:show]
   admin_resources :adjustment_reasons, except: [:show]
   admin_resources :store_credit_reasons, except: [:show]
+  admin_resources :product_option_types, only: [], sortable: true
 end

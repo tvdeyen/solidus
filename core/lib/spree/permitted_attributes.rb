@@ -14,6 +14,7 @@ module Spree
       :checkout_confirm_attributes,
       :credit_card_update_attributes,
       :customer_return_attributes,
+      :customer_metadata_attributes,
       :image_attributes,
       :inventory_unit_attributes,
       :line_item_attributes,
@@ -41,6 +42,7 @@ module Spree
     @@address_attributes = [
       :id, :name, :address1, :address2, :city, :country_id, :state_id,
       :zipcode, :phone, :state_name, :country_iso, :alternative_phone, :company,
+      :email, :vat_id, :reverse_charge_status,
       country: [:iso, :name, :iso3, :iso_name],
       state: [:name, :abbr]
     ]
@@ -55,21 +57,23 @@ module Spree
       :stock_location_id, return_items_attributes: [
         :id, :inventory_unit_id, :return_authorization_id, :returned, :amount,
         :reception_status_event, :acceptance_status, :exchange_variant_id,
-        :resellable, :return_reason_id
+        :resellable, :return_reason_id, customer_metadata: {}
       ]
     ]
+
+    @@customer_metadata_attributes = [customer_metadata: {}]
 
     @@image_attributes = [:alt, :attachment, :position, :viewable_type, :viewable_id]
 
     @@inventory_unit_attributes = [:shipment, :variant_id]
 
-    @@line_item_attributes = [:id, :variant_id, :quantity]
+    @@line_item_attributes = [:id, :variant_id, :quantity, customer_metadata: {}]
 
     @@option_value_attributes = [:name, :presentation]
 
     @@option_type_attributes = [:name, :presentation, option_values_attributes: option_value_attributes]
 
-    @@payment_attributes = [:amount, :payment_method_id, :payment_method]
+    @@payment_attributes = [:amount, :payment_method_id, :payment_method, customer_metadata: {}]
 
     @@product_properties_attributes = [:property_name, :value, :position]
 
@@ -78,16 +82,24 @@ module Spree
       :meta_keywords, :price, :sku, :deleted_at,
       :option_values_hash, :weight, :height, :width, :depth,
       :shipping_category_id, :tax_category_id,
-      :taxon_ids, :option_type_ids, :cost_currency, :cost_price
+      :taxon_ids, :option_type_ids, :cost_currency, :cost_price, :primary_taxon_id,
+      :gtin, :condition
     ]
 
     @@property_attributes = [:name, :presentation]
 
-    @@return_authorization_attributes = [:memo, :stock_location_id, :return_reason_id, return_items_attributes: [:inventory_unit_id, :exchange_variant_id, :return_reason_id, :preferred_reimbursement_type_id]]
+    @@return_authorization_attributes = [:memo, :stock_location_id, :return_reason_id,
+                                         customer_metadata: {},
+                                         return_items_attributes: [
+                                           :inventory_unit_id,
+                                           :exchange_variant_id,
+                                           :return_reason_id,
+                                           :preferred_reimbursement_type_id
+                                         ]]
 
     @@shipment_attributes = [
       :special_instructions, :stock_location_id, :id, :tracking,
-      :selected_shipping_rate_id
+      :selected_shipping_rate_id, customer_metadata: {}
     ]
 
     # month / year may be provided by some sources, or others may elect to use one field
@@ -95,7 +107,7 @@ module Spree
       :number, :month, :year, :expiry, :verification_value,
       :first_name, :last_name, :cc_type, :gateway_customer_profile_id,
       :gateway_payment_profile_id, :last_digits, :name, :encrypted_data,
-      :wallet_payment_source_id, address_attributes: address_attributes
+      :wallet_payment_source_id, address_attributes:
     ]
 
     @@stock_item_attributes = [:variant, :stock_location, :backorderable, :variant_id]
@@ -113,7 +125,7 @@ module Spree
     @@store_attributes = [:name, :url, :seo_title, :meta_keywords,
                           :meta_description, :default_currency,
                           :mail_from_address, :cart_tax_country_iso,
-                          :bcc_email]
+                          :bcc_email, :reverse_charge_status]
 
     @@taxonomy_attributes = [:name]
 
@@ -126,7 +138,7 @@ module Spree
     # by changing a user with higher priveleges' email to one a lower-priveleged
     # admin owns. Creating a user with an email is handled separate at the
     # controller level.
-    @@user_attributes = [:password, :password_confirmation]
+    @@user_attributes = [:password, :password_confirmation, customer_metadata: {}]
 
     @@variant_attributes = [
       :name, :presentation, :cost_price, :lock_version,
@@ -153,7 +165,7 @@ module Spree
 
     @@checkout_payment_attributes = [
       payments_attributes: payment_attributes + [
-        source_attributes: source_attributes
+        source_attributes:
       ]
     ]
 

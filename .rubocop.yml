@@ -1,15 +1,16 @@
 inherit_from: .rubocop_todo.yml
 
 # Relaxed.Ruby.Style
-
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
+require:
+  - ./tasks/linting/wrong_migration_version.rb
 
 AllCops:
   Exclude:
-    - '**/{tmp,vendor,spec/dummy,sandbox,templates,pkg}/**/*'
-  TargetRubyVersion: 3.0
+    - "**/{tmp,vendor,spec/dummy,sandbox,templates,pkg}/**/*"
+  TargetRubyVersion: 3.1
   NewCops: disable
   SuggestExtensions: false
 
@@ -18,7 +19,7 @@ Style/ClassVars:
   Enabled: false
 
 # We need these names for backwards compatability
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Enabled: false
 
 # We want to name rescued errors as error not simply e.
@@ -113,6 +114,10 @@ Style/TrailingCommaInHashLiteral:
 Style/SymbolArray:
   Enabled: false
 
+# In some circumstances, this looks really unintuitive
+Rails/Delegate:
+  Enabled: false
+
 Rails/DynamicFindBy:
   Whitelist:
     - find_by_param
@@ -121,7 +126,7 @@ Rails/DynamicFindBy:
 # It's okay to skip model validations to setup a spec.
 Rails/SkipsModelValidations:
   Exclude:
-    - '*/spec/**/*'
+    - "*/spec/**/*"
 
 # We use a lot of
 #
@@ -132,15 +137,16 @@ Rails/SkipsModelValidations:
 # syntax in the specs files.
 Lint/AmbiguousBlockAssociation:
   Exclude:
-    - '*/spec/**/*'
-    - 'spec/**/*' # For the benefit of apps that inherit from this config
+    - "*/spec/**/*"
+    - "spec/**/*" # For the benefit of apps that inherit from this config
+    - "**/shared_examples/**/*"
 
 # We use eval to add common_spree_dependencies into the Gemfiles of each of our gems
 Security/Eval:
   Exclude:
-    - 'Gemfile'
-    - 'common_spree_dependencies.rb'
-    - '*/Gemfile'
+    - "Gemfile"
+    - "common_spree_dependencies.rb"
+    - "*/Gemfile"
 
 Naming/VariableNumber:
   Enabled: false
@@ -306,10 +312,10 @@ Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always
   Exclude:
-    - '*/lib/generators/**/*'
-    - '**/bin/**/*'
-    - '*/db/migrate/**/*'
-    - '*/config/importmap.rb'
+    - "*/lib/generators/**/*"
+    - "**/bin/**/*"
+    - "*/db/migrate/**/*"
+    - "*/config/importmap.rb"
 
 # json.() is idiomatic in jbuilder files
 Style/LambdaCall:
@@ -320,6 +326,7 @@ Naming/MethodParameterName:
     - id
     - to
     - _
+    - "on"
 
 # Rubocop doesn't understand side-effects
 Style/IdenticalConditionalBranches:
@@ -333,13 +340,13 @@ Lint/SuppressedException:
 
 Lint/MissingSuper:
   Exclude:
-    - '*/app/components/**/*' # components need pristine initializer methods
-    - 'core/lib/spree/deprecated_instance_variable_proxy.rb' # this is a known class that doesn't require super
-    - 'core/lib/spree/preferences/configuration.rb' # this class has no superclass defining `self.inherited`
+    - "*/app/components/**/*" # components need pristine initializer methods
+    - "core/lib/spree/deprecated_instance_variable_proxy.rb" # this is a known class that doesn't require super
+    - "core/lib/spree/preferences/configuration.rb" # this class has no superclass defining `self.inherited`
 
 Rails/FindEach:
   Exclude:
-    - 'db/migrate/**/*'
+    - "db/migrate/**/*"
 
 # Since we're writing library code we can't assume that
 # tasks should load the rails environment loaded.

@@ -2,7 +2,7 @@
 
 # Solidus
 
-[![Circle CI](https://circleci.com/gh/solidusio/solidus/tree/main.svg?style=shield)](https://circleci.com/gh/solidusio/solidus/tree/main)
+[![Test](https://github.com/solidusio/solidus/actions/workflows/test.yml/badge.svg)](https://github.com/solidusio/solidus/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/solidusio/solidus/branch/main/graph/badge.svg)](https://codecov.io/gh/solidusio/solidus/branch/main)
 [![Gem](https://img.shields.io/gem/v/solidus.svg)](https://rubygems.org/gems/solidus)
 [![License](http://img.shields.io/badge/license-BSD-blue.svg)](LICENSE.md)
@@ -14,14 +14,14 @@
 [![Open Source Helpers](https://www.codetriage.com/solidusio/solidus/badges/users.svg)](https://www.codetriage.com/solidusio/solidus)
 [![Slack](https://shields.io/badge/slack-start_chatting-blue?logo=slack)](http://slack.solidus.io)
 
-**A free, open-source ecommerce platform that gives you complete control over your store.**
+**A free, open-source e-commerce platform that gives you complete control over your store.**
 
 - **Visit our website**: [https://solidus.io/](https://solidus.io/)
 - **Read our Community Guidelines**: [https://guides.solidus.io/policies/community-guidelines/](https://guides.solidus.io/policies/community-guidelines/)
+- **View the project roadmap**: [https://github.com/orgs/solidusio/projects/7](https://github.com/orgs/solidusio/projects/7)
 - **Read our guides**: [https://guides.solidus.io/](https://guides.solidus.io/)
 - **Join our Slack**: [http://slack.solidus.io/](http://slack.solidus.io/)
 - **Solidus Security**: [mailing list](https://groups.google.com/forum/#!forum/solidus-security)
-
 
 ## Table of Contents
 - [Supporting Solidus](#supporting-solidus)
@@ -53,7 +53,7 @@ Support this project by becoming a Solidus Ambassador. Your logo will show up he
 
 ## Summary
 
-Solidus is a complete open source ecommerce solution built with Ruby on Rails.
+Solidus is a complete open source e-commerce solution built with Ruby on Rails.
 It is a fork of [Spree](https://spreecommerce.org).
 
 See the [Solidus class documentation](http://docs.solidus.io) and the [Solidus
@@ -69,7 +69,7 @@ Solidus consists of several gems. When you require the `solidus` gem in your
 - [`solidus_sample`](https://github.com/solidusio/solidus/tree/master/sample) (Sample data)
 
 All of the gems are designed to work together to provide a fully functional
-ecommerce platform. However, you may only want to use the
+e-commerce platform. However, you may only want to use the
 [`solidus_core`](https://github.com/solidusio/solidus/tree/master/core) gem
 combine it with your own custom frontend, admin interface, and API.
 
@@ -90,6 +90,18 @@ To add Solidus, begin with a newly created Rails application with its database.
 rails new my_store
 ```
 
+> [!CAUTION]
+> Due to [a bug in `sprockets-rails`](https://github.com/rails/sprockets-rails/pull/546) we need to manually add the sprockets manifest into the generated rails app **before** running any rails commands inside the rails app folder.
+
+```bash
+mkdir -p my_store/app/assets/config
+cat <<MANIFEST > my_store/app/assets/config/manifest.js
+//= link_tree ../images
+//= link_directory ../javascripts .js
+//= link_directory ../stylesheets .css
+MANIFEST
+```
+
 ### Installing Solidus
 
 In your application's root folder run:
@@ -98,6 +110,9 @@ In your application's root folder run:
 bundle add solidus
 bin/rails g solidus:install
 ```
+
+> [!NOTE]
+> Please make sure to generate the sprockets manifest before running the `solidus:install` generator.
 
 And follow the prompt's instructions.
 ### Accessing Solidus Store

@@ -11,7 +11,7 @@ module Spree
     it { is_expected.to respond_to(:shipping_rate) }
 
     describe 'absolute_amount' do
-      subject(:shipping_rate_tax) { described_class.new(amount: amount).absolute_amount }
+      subject(:shipping_rate_tax) { described_class.new(amount:).absolute_amount }
 
       context 'with a negative amount' do
         let(:amount) { -19 }
@@ -32,7 +32,7 @@ module Spree
     end
 
     describe '#currency' do
-      subject(:shipping_rate_tax) { described_class.new(amount: 10, shipping_rate: shipping_rate).currency }
+      subject(:shipping_rate_tax) { described_class.new(amount: 10, shipping_rate:).currency }
 
       context 'when we have a shipping rate' do
         let(:shipping_rate) { build_stubbed(:shipping_rate) }
@@ -53,7 +53,7 @@ module Spree
     end
 
     describe '#label' do
-      subject(:shipping_rate_tax) { described_class.new(amount: amount, tax_rate: tax_rate).label }
+      subject(:shipping_rate_tax) { described_class.new(amount:, tax_rate:).label }
 
       context 'with an included tax rate' do
         let(:tax_rate) { build_stubbed(:tax_rate, included_in_price: true, name: "VAT") }
@@ -73,6 +73,20 @@ module Spree
         it 'labels an additional tax' do
           expect(subject).to eq("+ $2.20 Sales Tax")
         end
+      end
+    end
+
+    describe "autosaving when order is saved" do
+      let(:tax_rate) { create(:tax_rate) }
+      let(:shipping_rate) { create(:shipping_rate) }
+      let(:shipment) { shipping_rate.shipment }
+
+      it "works" do
+        shipping_rate.taxes.new(
+          amount: -2,
+          tax_rate: tax_rate
+        )
+        expect { shipment.save! }.to change { Spree::ShippingRateTax.count }
       end
     end
   end

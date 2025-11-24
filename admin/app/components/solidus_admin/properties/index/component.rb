@@ -5,6 +5,10 @@ class SolidusAdmin::Properties::Index::Component < SolidusAdmin::UI::Pages::Inde
     Spree::Property
   end
 
+  def title
+    t('solidus_admin.properties.title')
+  end
+
   def search_key
     :name_cont
   end
@@ -13,15 +17,20 @@ class SolidusAdmin::Properties::Index::Component < SolidusAdmin::UI::Pages::Inde
     solidus_admin.properties_path
   end
 
-  def row_url(property)
-    spree.admin_property_path(property)
+  def edit_path(property)
+    solidus_admin.edit_property_path(property, **search_filter_params)
+  end
+
+  def turbo_frames
+    %w[resource_form]
   end
 
   def page_actions
     render component("ui/button").new(
       tag: :a,
       text: t('.add'),
-      href: spree.new_admin_property_path,
+      href: solidus_admin.new_property_path(**search_filter_params),
+      data: { turbo_frame: :resource_form },
       icon: "add-line",
     )
   end
@@ -30,7 +39,7 @@ class SolidusAdmin::Properties::Index::Component < SolidusAdmin::UI::Pages::Inde
     [
       {
         label: t('.batch_actions.delete'),
-        action: solidus_admin.properties_path,
+        action: solidus_admin.properties_path(**search_filter_params),
         method: :delete,
         icon: 'delete-bin-7-line',
       },
@@ -48,7 +57,9 @@ class SolidusAdmin::Properties::Index::Component < SolidusAdmin::UI::Pages::Inde
     {
       header: :name,
       data: ->(property) do
-        content_tag :div, property.name
+        link_to property.name, edit_path(property),
+          data: { turbo_frame: :resource_form },
+          class: 'body-link'
       end
     }
   end
@@ -57,7 +68,9 @@ class SolidusAdmin::Properties::Index::Component < SolidusAdmin::UI::Pages::Inde
     {
       header: :presentation,
       data: ->(property) do
-        content_tag :div, property.presentation
+        link_to property.presentation, edit_path(property),
+          data: { turbo_frame: :resource_form },
+          class: 'body-link'
       end
     }
   end

@@ -11,10 +11,10 @@ module Spree
     mattr_accessor :state_validator_class
     self.state_validator_class = Spree::Address::StateValidator
 
-    belongs_to :country, class_name: "Spree::Country", optional: true
+    belongs_to :country, class_name: "Spree::Country"
     belongs_to :state, class_name: "Spree::State", optional: true
 
-    validates :address1, :city, :country_id, :name, presence: true
+    validates :address1, :city, :name, presence: true
     validates :zipcode, presence: true, if: :require_zipcode?
     validates :phone, presence: true, if: :require_phone?
 
@@ -27,6 +27,12 @@ module Spree
     TAXATION_ATTRS = %w(state_id country_id zipcode).freeze
 
     self.allowed_ransackable_attributes = %w[name]
+
+    enum :reverse_charge_status, {
+      disabled: 0,
+      enabled: 1,
+      not_validated: 2
+    }, prefix: true
 
     unless ActiveRecord::Relation.method_defined? :with_values # Rails 7.1+
       scope :with_values, ->(attributes) do
@@ -97,14 +103,14 @@ module Spree
     # @return [Hash] an ActiveMerchant compatible address hash
     def active_merchant_hash
       {
-        name: name,
-        address1: address1,
-        address2: address2,
-        city: city,
+        name:,
+        address1:,
+        address2:,
+        city:,
         state: state_text,
         zip: zipcode,
         country: country.try(:iso),
-        phone: phone
+        phone:
       }
     end
 
@@ -132,7 +138,7 @@ module Spree
     # @return [Country] setter that sets self.country to the Country with a matching 2 letter iso
     # @raise [ActiveRecord::RecordNotFound] if country with the iso doesn't exist
     def country_iso=(iso)
-      self.country = Spree::Country.find_by!(iso: iso)
+      self.country = Spree::Country.find_by!(iso:)
     end
 
     def country_iso

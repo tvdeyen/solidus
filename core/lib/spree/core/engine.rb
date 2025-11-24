@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spree/config'
+require 'spree/core'
 
 module Spree
   module Core
@@ -19,6 +19,11 @@ module Spree
         config.active_record.yaml_column_permitted_classes ||= []
         config.active_record.yaml_column_permitted_classes |=
           [Symbol, BigDecimal, ActiveSupport::HashWithIndifferentAccess]
+      end
+
+      initializer "spree.zeitwerk_ignores" do
+        old_helpers = Engine.root.join("lib", "spree", "core", "controller_helpers", "*", "*.rb")
+        Rails.application.autoloaders.main.ignore(old_helpers)
       end
 
       initializer "spree.environment", before: :load_config_initializers do |app|
@@ -56,14 +61,19 @@ module Spree
           Spree::Bus.clear
 
           %i[
+            carton_shipped
+            order_canceled
             order_emptied
             order_finalized
             order_recalculated
+            order_short_shipped
             reimbursement_reimbursed
             reimbursement_errored
           ].each { |event_name| Spree::Bus.register(event_name) }
 
-          Spree::OrderMailerSubscriber.new.subscribe_to(Spree::Bus)
+          Spree::Config.environment.subscribers.each do |subscriber_class|
+            subscriber_class.new.subscribe_to(Spree::Bus)
+          end
         end
       end
 

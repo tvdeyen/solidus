@@ -11,20 +11,58 @@ module Spree
     included do
       extend Spree::DisplayMoney
 
-      has_many :role_users, foreign_key: "user_id", class_name: "Spree::RoleUser", dependent: :destroy
-      has_many :spree_roles, through: :role_users, source: :role, class_name: "Spree::Role"
+      has_many :role_users,
+        foreign_key: "user_id",
+        class_name: "Spree::RoleUser",
+        dependent: :destroy,
+        inverse_of: :user
+      has_many :spree_roles,
+        through: :role_users,
+        source: :role,
+        class_name: "Spree::Role",
+        inverse_of: :users
 
-      has_many :user_stock_locations, foreign_key: "user_id", class_name: "Spree::UserStockLocation"
-      has_many :stock_locations, through: :user_stock_locations
+      has_many :user_stock_locations,
+        foreign_key: "user_id",
+        class_name: "Spree::UserStockLocation",
+        inverse_of: :user,
+        dependent: :destroy
+      has_many :stock_locations,
+        through: :user_stock_locations,
+        inverse_of: :users
 
-      has_many :spree_orders, foreign_key: "user_id", class_name: "Spree::Order"
-      has_many :orders, foreign_key: "user_id", class_name: "Spree::Order"
+      has_many :spree_orders,
+        foreign_key: "user_id",
+        class_name: "Spree::Order",
+        inverse_of: :user,
+        dependent: false
+      has_many :orders,
+        foreign_key: "user_id",
+        class_name: "Spree::Order",
+        inverse_of: :user,
+        dependent: false
 
-      has_many :store_credits, -> { includes(:credit_type) }, foreign_key: "user_id", class_name: "Spree::StoreCredit"
-      has_many :store_credit_events, through: :store_credits
+      has_many :store_credits,
+        -> { includes(:credit_type) },
+        foreign_key: "user_id",
+        class_name: "Spree::StoreCredit",
+        dependent: :nullify,
+        inverse_of: :user
+      has_many :store_credit_events,
+        through: :store_credits,
+        inverse_of: false
 
-      has_many :credit_cards, class_name: "Spree::CreditCard", foreign_key: :user_id
-      has_many :wallet_payment_sources, foreign_key: 'user_id', class_name: 'Spree::WalletPaymentSource', inverse_of: :user
+      has_many :credit_cards,
+        class_name: "Spree::CreditCard",
+        foreign_key: :user_id,
+        dependent: :nullify,
+        inverse_of: :user
+
+      has_many :wallet_payment_sources,
+        foreign_key: 'user_id',
+        class_name: 'Spree::WalletPaymentSource',
+        inverse_of: :user,
+        dependent: :destroy
 
       after_create :auto_generate_spree_api_key
       before_destroy :check_for_deletion
@@ -58,7 +96,7 @@ module Spree
     def last_incomplete_spree_order(store: nil, only_frontend_viewable: true)
       self_orders = orders
       self_orders = self_orders.where(frontend_viewable: true) if only_frontend_viewable
-      self_orders = self_orders.where(store: store) if store
+      self_orders = self_orders.where(store:) if store
       self_orders = self_orders.where('updated_at > ?', Spree::Config.completable_order_updated_cutoff_days.days.ago) if Spree::Config.completable_order_updated_cutoff_days
       self_orders = self_orders.where('created_at > ?', Spree::Config.completable_order_created_cutoff_days.days.ago) if Spree::Config.completable_order_created_cutoff_days
       last_order = self_orders.order(:created_at).last
@@ -73,8 +111,8 @@ module Spree
 
     def display_available_store_credit_total(currency:)
       Spree::Money.new(
-        available_store_credit_total(currency: currency),
-        currency: currency,
+        available_store_credit_total(currency:),
+        currency:,
       )
     end
 

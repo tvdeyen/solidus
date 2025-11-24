@@ -63,6 +63,31 @@ class SolidusAdmin::UI::Button::Component < SolidusAdmin::BaseComponent
     },
   }
 
+  def self.back(path:, **options)
+    new(
+      tag: :a,
+      title: t(".back"),
+      icon: "arrow-left-line",
+      scheme: :secondary,
+      href: path,
+      **options
+    )
+  end
+
+  def self.discard(path:, **options)
+    new(
+      tag: :a,
+      text: t(".discard"),
+      scheme: :secondary,
+      href: path,
+      **options
+    )
+  end
+
+  def self.save(**options)
+    new(text: t(".save"), **options)
+  end
+
   def initialize(
     tag: :button,
     text: nil,
@@ -89,6 +114,18 @@ class SolidusAdmin::UI::Button::Component < SolidusAdmin::BaseComponent
       'fill-current',
       ICON_SIZES.fetch(size.to_sym),
     ]
+  end
+
+  def self.submit(resource:, **attrs)
+    unless (text = attrs.delete(:text))
+      resource_name = resource.model_name.human
+      text = resource.new_record? ? t('.submit.create', resource_name:) : t('.submit.update', resource_name:)
+    end
+    new(text:, type: :submit, **attrs)
+  end
+
+  def self.cancel
+    new(scheme: :secondary, text: t('.cancel'))
   end
 
   def call

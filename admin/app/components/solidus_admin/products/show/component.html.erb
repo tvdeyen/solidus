@@ -19,42 +19,43 @@
         target: :_blank,
         scheme: :ghost
       ) %>
-      <%= render component("ui/button").new(tag: :button, text: t(".save"), form: form_id) %>
+      <%= render component("ui/button").save(form: form_id) %>
     <% end %>
   <% end %>
 
-  <%= form_for @product, url: solidus_admin.product_path(@product), html: { id: form_id } do |f| %>
+  <%= solidus_form_for @product, url: solidus_admin.product_path(@product), html: { id: form_id } do |f| %>
     <%= page_with_sidebar do %>
       <%= page_with_sidebar_main do %>
-        <%= render component('ui/panel').new do %>
-          <%= render component("ui/forms/field").text_field(f, :name) %>
-          <%= render component("ui/forms/field").text_field(f, :slug) %>
-          <%= render component("ui/forms/field").text_area(f, :description) %>
+        <%= render component("ui/panel").new do %>
+          <%= f.text_field(:name) %>
+          <%= f.text_field(:slug) %>
+          <%= f.text_area(:description) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: 'SEO') do %>
-          <%= render component("ui/forms/field").text_field(f, :meta_title) %>
-          <%= render component("ui/forms/field").text_field(f, :meta_description) %>
-          <%= render component("ui/forms/field").text_area(f, :meta_keywords) %>
+        <%= render component("ui/panel").new(title: t(".seo")) do %>
+          <%= f.text_field(:meta_title) %>
+          <%= f.text_field(:meta_description) %>
+          <%= f.text_area(:meta_keywords) %>
+          <%= f.text_field(:gtin) %>
+          <%= f.select(:condition, condition_options, include_blank: t("spree.unset")) %>
         <% end %>
-
-        <%= render component('ui/panel').new(title: "Media") do |panel| %>
+        <%= render component("ui/panel").new(title: t(".media")) do |panel| %>
           <% panel.with_action(
             name: t(".manage_images"),
             href: spree.admin_product_images_path(@product)
           ) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: 'Pricing') do %>
-          <%= render component("ui/forms/field").text_field(f, :price) %>
+        <%= render component("ui/panel").new(title: t(".pricing")) do %>
+          <%= f.text_field(:price) %>
           <div class="flex gap-4 justify-items-stretch">
-            <%= render component("ui/forms/field").text_field(f, :cost_price) %>
-            <%= render component("ui/forms/field").text_field(f, :cost_currency) %>
+            <%= f.text_field(:cost_price) %>
+            <%= f.text_field(:cost_currency) %>
           </div>
         <% end %>
 
-        <%= render component('ui/panel').new(title: 'Stock') do |panel| %>
-          <%= render component("ui/forms/field").text_field(f, :sku) %>
+        <%= render component("ui/panel").new(title: t(".stock")) do |panel| %>
+          <%= f.text_field(:sku) %>
 
           <% panel.with_action(
             name: t(".manage_stock"),
@@ -62,35 +63,60 @@
           ) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: 'Shipping') do %>
-          <%= render component("ui/forms/field").select(
-            f,
+        <%= render component("ui/panel").new(title: t(".shipping")) do %>
+          <%= f.select(
             :shipping_category_id,
             [[t(".none"), nil]] + Spree::ShippingCategory.order(:name).pluck(:name, :id),
-            tip: t(".hints.shipping_category_html"),
+            tip: t(".hints.shipping_category_html")
           ) %>
-          <%= render component("ui/forms/field").select(
-            f,
+          <%= f.select(
             :tax_category_id,
             [[t(".none"), nil]] + Spree::TaxCategory.order(:name).pluck(:name, :id),
-            tip: t(
-              ".hints.tax_category_html",
-              default_tax_category: Spree::TaxCategory.default&.name
-            ),
+            tip: t(".hints.tax_category_html")
           ) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: "Options") do %>
-          <%= render component("ui/forms/field").select(
-            f,
-            :option_type_ids,
-            option_type_options,
-            multiple: true,
-            "size" => option_type_options.size,
+        <%= render component("ui/panel").new(title: t(".options")) do |panel| %>
+          <% if @product.product_option_types.present? %>
+            <% panel.with_section do %>
+              <div class="flex flex-col gap-4" data-controller="sortable" data-sortable-handle-value=".handle">
+                <% @product.product_option_types.includes(option_type: :option_values).order(:position).each do |product_option| %>
+                  <div class="flex gap-2 justify-between" data-sortable-url=<%= solidus_admin.move_product_option_type_path(product_option) %>>
+                    <div class="flex gap-2">
+                      <div class="flex items-center">
+                        <%= render component("ui/icon").new(name: "draggable", class: "w-6 h-6 cursor-grab handle fill-gray-500") %>
+                      </div>
+                      <div class="flex flex-col gap-2">
+                        <span class="font-semibold text-sm"><%= product_option.option_type.name %>:<%= product_option.option_type.presentation %></span>
+                        <div class="flex gap-2 flex-wrap">
+                          <% product_option.option_type.option_values.each do |value| %>
+                            <%= render component("ui/badge").new(name: "#{value.name}:#{value.presentation}") %>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <%= render component("ui/button").new(tag: :a, href: spree.edit_admin_option_type_path(product_option.option_type), scheme: :secondary, text: t(".edit")) %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+
+          <div class="flex gap-4 justify-between items-end">
+            <%= hidden_field_tag "#{f.object_name}[option_type_ids][]", nil %>
+            <%= f.select(:option_type_ids, option_type_options, multiple: true) %>
+            <%= render component("ui/button").new(type: :submit, text: t(".save")) %>
+          </div>
+
+          <% panel.with_action(
+            name: t(".manage_options"),
+            href: solidus_admin.option_types_path
           ) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: "Specifications") do |panel| %>
+        <%= render component("ui/panel").new(title: t(".specifications")) do |panel| %>
           <% panel.with_action(
             name: t(".manage_properties"),
             href: spree.admin_product_product_properties_path(@product)
@@ -99,39 +125,24 @@
       <% end %>
 
       <%= page_with_sidebar_aside do %>
-        <%= render component('ui/panel').new(title: "Publishing") do %>
-          <%= render component("ui/forms/field").text_field(
-            f,
+        <%= render component("ui/panel").new(title: t(".publishing")) do %>
+          <%= f.text_field(
             :available_on,
-            hint: t(".available_on_html"),
+            hint: t(".hints.available_on_html"),
             type: :date,
             value: f.object.available_on&.to_date
           ) %>
-          <%= render component("ui/forms/field").text_field(
-            f,
+          <%= f.text_field(
             :discontinue_on,
-            hint: t(".discontinue_on_html"),
+            hint: t(".hints.discontinue_on_html"),
             type: :date,
             value: f.object.discontinue_on&.to_date
           ) %>
-          <label class="flex gap-2 items-center">
-            <%= render component("ui/forms/checkbox").new(
-              name: "#{f.object_name}[promotionable]",
-              checked: f.object.promotionable
-            ) %>
-            <span class="font-normal text-xs"><%= Spree::Product.human_attribute_name :promotionable %></span>
-            <%= render component("ui/toggletip").new(text: t(".hints.promotionable_html")) %>
-          </label>
+          <%= f.checkbox(:promotionable, hint: t(".hints.promotionable_html")) %>
         <% end %>
 
-        <%= render component('ui/panel').new(title: "Product organization") do %>
-          <%= render component("ui/forms/field").select(
-            f,
-            :taxon_ids,
-            taxon_options,
-            multiple: true,
-            "size" => taxon_options.size, # use a string key to avoid setting the size of the component
-          ) %>
+        <%= render component("ui/panel").new(title: t(".product_organization")) do %>
+          <%= f.select(:taxon_ids, taxon_options, multiple: true) %>
         <% end %>
       <% end %>
     <% end %>

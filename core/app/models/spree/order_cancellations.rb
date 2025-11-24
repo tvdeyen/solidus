@@ -9,9 +9,22 @@ class Spree::OrderCancellations
   #     #call(unit_cancels)
   class_attribute :short_ship_tax_notifier
 
-  # allows sending an email when inventory is cancelled
-  class_attribute :send_cancellation_mailer
-  self.send_cancellation_mailer = true
+  class << self
+    def send_cancellation_mailer=(value)
+      @send_cancellation_mailer = value
+
+      unless value
+        Spree.deprecator.warn "Using the `:send_cancellation_mailer` class " \
+          "attribute is deprecated in favor of including or omitting the " \
+          "`Spree::OrderInventoryCancellationMailerSubscriber` from " \
+          "`Spree::Config.environment.subscribers` in an initializer."
+      end
+    end
+
+    def send_cancellation_mailer
+      @send_cancellation_mailer || @send_cancellation_mailer.nil?
+    end
+  end
 
   def initialize(order)
     @order = order
@@ -36,11 +49,8 @@ class Spree::OrderCancellations
     Spree::OrderMutex.with_lock!(@order) do
       Spree::InventoryUnit.transaction do
         inventory_units.each do |iu|
-          unit_cancels << short_ship_unit(iu, created_by: created_by)
+          unit_cancels << short_ship_unit(iu, created_by:)
         end
-
-        update_shipped_shipments(inventory_units)
-        Spree::Config.order_mailer_class.inventory_cancellation_email(@order, inventory_units.to_a).deliver_later if Spree::OrderCancellations.send_cancellation_mailer
       end
 
       @order.recalculate
@@ -50,6 +60,7 @@ class Spree::OrderCancellations
       end
     end
 
+    Spree::Bus.publish(:order_short_shipped, order: @order, inventory_units:)
     unit_cancels
   end
 
@@ -67,9 +78,9 @@ class Spree::OrderCancellations
 
     Spree::OrderMutex.with_lock!(@order) do
       unit_cancel = Spree::UnitCancel.create!(
-        inventory_unit: inventory_unit,
-        reason: reason,
-        created_by: created_by
+        inventory_unit:,
+        reason:,
+        created_by:
       )
 
       inventory_unit.cancel!
@@ -89,8 +100,8 @@ class Spree::OrderCancellations
 
     Spree::OrderMutex.with_lock!(@order) do
       return_items = inventory_units.map(&:current_or_new_return_item)
-      reimbursement = Spree::Reimbursement.new(order: @order, return_items: return_items)
-      reimbursement.return_all(created_by: created_by)
+      reimbursement = Spree::Reimbursement.new(order: @order, return_items:)
+      reimbursement.return_all(created_by:)
     end
 
     reimbursement
@@ -100,27 +111,13 @@ class Spree::OrderCancellations
 
   def short_ship_unit(inventory_unit, created_by: nil)
     unit_cancel = Spree::UnitCancel.create!(
-      inventory_unit: inventory_unit,
+      inventory_unit:,
       reason: Spree::UnitCancel::SHORT_SHIP,
-      created_by: created_by
+      created_by:
     )
     unit_cancel.adjust!
     inventory_unit.cancel!
 
     unit_cancel
-  end
-
-  # if any shipments are now fully shipped then mark them as such
-  def update_shipped_shipments(inventory_units)
-    shipments = Spree::Shipment.
-      includes(:inventory_units).
-      where(id: inventory_units.map(&:shipment_id)).
-      to_a
-
-    shipments.each do |shipment|
-      if shipment.inventory_units.all? { |iu| iu.shipped? || iu.canceled? }
-        shipment.update!(state: 'shipped', shipped_at: Time.current)
-      end
-    end
   end
 end

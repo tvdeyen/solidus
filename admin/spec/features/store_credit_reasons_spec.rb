@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'solidus_admin/testing_support/shared_examples/bulk_delete_resources'
 
-describe "Store Credit Reasons", :js, type: :feature do
+describe "Store Credit Reasons", type: :feature do
   before { sign_in create(:admin_user, email: 'admin@example.com') }
 
-  it "lists store credit reasons and allows deleting them" do
+  it "lists store credit reasons and allows deleting them", :js do
     create(:store_credit_reason, name: "Default-store-credit-reason")
 
     visit "/admin/store_credit_reasons"
@@ -26,12 +27,15 @@ describe "Store Credit Reasons", :js, type: :feature do
     before do
       visit "/admin/store_credit_reasons#{query}"
       click_on "Add new"
+      expect(page).to have_selector("dialog")
       expect(page).to have_content("New Store Credit Reason")
+    end
+
+    it "is accessible", :js do
       expect(page).to be_axe_clean
     end
 
-    it "opens a modal" do
-      expect(page).to have_selector("dialog")
+    it "closing the modal keeps query params", :js do
       within("dialog") { click_on "Cancel" }
       expect(page).not_to have_selector("dialog")
       expect(page.current_url).to include(query)
@@ -65,13 +69,16 @@ describe "Store Credit Reasons", :js, type: :feature do
     before do
       Spree::StoreCreditReason.create(name: "New Customer Reward")
       visit "/admin/store_credit_reasons#{query}"
-      find_row("New Customer Reward").click
+      click_on "New Customer Reward"
+      expect(page).to have_selector("dialog")
       expect(page).to have_content("Edit Store Credit Reason")
+    end
+
+    it "is accessible", :js do
       expect(page).to be_axe_clean
     end
 
-    it "opens a modal" do
-      expect(page).to have_selector("dialog")
+    it "closing the modal keeps query params", :js do
       within("dialog") { click_on "Cancel" }
       expect(page).not_to have_selector("dialog")
       expect(page.current_url).to include(query)

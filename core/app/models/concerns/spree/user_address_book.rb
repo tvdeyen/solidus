@@ -5,7 +5,7 @@ module Spree
     extend ActiveSupport::Concern
 
     included do
-      has_many :user_addresses, -> { active }, foreign_key: "user_id", class_name: "Spree::UserAddress" do
+      has_many :user_addresses, foreign_key: "user_id", class_name: "Spree::UserAddress", inverse_of: :user, dependent: :destroy do
         def find_first_by_address_values(address_attrs)
           detect { |ua| ua.address == Spree::Address.new(address_attrs) }
         end
@@ -22,7 +22,7 @@ module Spree
             end
 
             if user_address.persisted?
-              user_address.update!(column_for_default => true, archived: false)
+              user_address.update!(column_for_default => true)
             else
               user_address.write_attribute(column_for_default, true)
             end
@@ -32,11 +32,29 @@ module Spree
 
       has_many :addresses, through: :user_addresses
 
-      has_one :default_user_bill_address, ->{ default_billing }, class_name: 'Spree::UserAddress', foreign_key: 'user_id'
-      has_one :bill_address, through: :default_user_bill_address, source: :address
+      has_one :default_user_bill_address,
+        ->{ default_billing },
+        class_name: 'Spree::UserAddress',
+        foreign_key: 'user_id',
+        inverse_of: false,
+        dependent: false
+      has_one :bill_address,
+        through: :default_user_bill_address,
+        source: :address,
+        inverse_of: false,
+        dependent: false
 
-      has_one :default_user_ship_address, ->{ default_shipping }, class_name: 'Spree::UserAddress', foreign_key: 'user_id'
-      has_one :ship_address, through: :default_user_ship_address, source: :address
+      has_one :default_user_ship_address,
+        ->{ default_shipping },
+        class_name: 'Spree::UserAddress',
+        foreign_key: 'user_id',
+        inverse_of: false,
+        dependent: false
+      has_one :ship_address,
+        through: :default_user_ship_address,
+        source: :address,
+        inverse_of: false,
+        dependent: false
 
       accepts_nested_attributes_for :ship_address
       accepts_nested_attributes_for :bill_address
@@ -120,7 +138,7 @@ module Spree
         remove_from_address_book(address_attributes[:id])
       end
 
-      user_addresses.mark_default(user_address, address_type: address_type) if default || first_one
+      user_addresses.mark_default(user_address, address_type:) if default || first_one
 
       if persisted?
         user_address.save!
@@ -140,18 +158,18 @@ module Spree
     end
 
     def mark_default_ship_address(address)
-      user_addresses.mark_default(user_addresses.find_by(address: address))
+      user_addresses.mark_default(user_addresses.find_by(address:))
     end
 
     def mark_default_bill_address(address)
-      user_addresses.mark_default(user_addresses.find_by(address: address), address_type: :billing)
+      user_addresses.mark_default(user_addresses.find_by(address:), address_type: :billing)
     end
 
     def remove_from_address_book(address_id)
-      user_address = user_addresses.find_by(address_id: address_id)
+      user_address = user_addresses.find_by(address_id:)
       if user_address
         remove_user_address_reference(address_id)
-        user_address.update(archived: true, default: false)
+        user_address.destroy!
       else
         false
       end
@@ -160,10 +178,9 @@ module Spree
     private
 
     def prepare_user_address(new_address)
-      user_address = user_addresses.all_historical.find_first_by_address_values(new_address.attributes)
+      user_address = user_addresses.find_first_by_address_values(new_address.attributes)
       user_address ||= user_addresses.build
       user_address.address = new_address
-      user_address.archived = false
       user_address
     end
 

@@ -25,7 +25,7 @@ module Spree
       def activate
         promotions.each do |promotion|
           if (line_item && promotion.eligible?(line_item, promotion_code: promotion_code(promotion))) || promotion.eligible?(order, promotion_code: promotion_code(promotion))
-            promotion.activate(line_item: line_item, order: order, promotion_code: promotion_code(promotion))
+            promotion.activate(line_item:, order:, promotion_code: promotion_code(promotion))
           end
         end
       end
@@ -45,7 +45,7 @@ module Spree
 
       def preload(records:, associations:)
         if Rails::VERSION::MAJOR >= 7
-          ActiveRecord::Associations::Preloader.new(records: records, associations: associations).call
+          ActiveRecord::Associations::Preloader.new(records:, associations:).call
         else
           ActiveRecord::Associations::Preloader.new.preload(records, associations)
         end
@@ -61,7 +61,7 @@ module Spree
 
       def promotion_code(promotion)
         order_promotion = order.order_promotions.detect { |op| op.promotion_id == promotion.id }
-        order_promotion.present? ? order_promotion.promotion_code : nil
+        order_promotion.presence&.promotion_code
       end
 
       def promotion_includes

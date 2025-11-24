@@ -4,12 +4,20 @@ require 'rails_helper'
 
 module Spree
   RSpec.describe StockLocation, type: :model do
-    subject { create(:stock_location_with_items, backorderable_default: true) }
+    subject(:stock_location) { create(:stock_location_with_items, backorderable_default: true) }
     let(:stock_item) { subject.stock_items.order(:id).first }
     let(:variant) { stock_item.variant }
 
     it 'creates stock_items for all variants' do
       expect(subject.stock_items.count).to eq Variant.count
+    end
+
+    describe "#customer_returns" do
+      let(:customer_return) { create(:customer_return, stock_location: stock_location) }
+
+      it "works" do
+        expect(stock_location.customer_returns).to include(customer_return)
+      end
     end
 
     context "handling stock items" do
@@ -244,13 +252,13 @@ module Spree
 
       context 'both name and abbr is present' do
         let(:state) { stub_model(Spree::State, name: 'virginia', abbr: 'va') }
-        subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
+        subject { StockLocation.create(name: "testing", state:, state_name: nil) }
         specify { expect(subject.state_text).to eq('va') }
       end
 
       context 'only name is present' do
         let(:state) { stub_model(Spree::State, name: 'virginia', abbr: nil) }
-        subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
+        subject { StockLocation.create(name: "testing", state:, state_name: nil) }
         specify { expect(subject.state_text).to eq('virginia') }
       end
     end

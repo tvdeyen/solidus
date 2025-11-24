@@ -168,6 +168,13 @@ module Spree
     #   @return [String] template to use for layout on the frontend (default: +"spree/layouts/spree_application"+)
     preference :layout, :string, default: 'spree/layouts/spree_application'
 
+    # !@attribute [rw] line_item_comparison_hooks
+    #   @return [Array<Symbol>] An array of methods to call on {Spree::Order} to determine if a line item is equal to another
+    #   (default: +[]+)
+    #   @example
+    #   config.line_item_comparison_hooks << :my_custom_method
+    preference :line_item_comparison_hooks, :array, default: []
+
     # @!attribute [rw] logo
     #   @return [String] URL of logo used on frontend (default: +'logo/solidus.svg'+)
     preference :logo, :string, default: 'logo/solidus.svg'
@@ -208,6 +215,27 @@ module Spree
     # @!attribute [rw] orders_per_page
     #   @return [Integer] Orders to show per-page in the admin (default: +15+)
     preference :orders_per_page, :integer, default: 15
+
+    # @!attribute [rw] meta_data_validation_enabled
+    #   @return [Boolean] Indicates whether validation for customer and admin metadata columns is enabled.
+    #   When this is set to true, the following preferences will be used to validate the metadata:
+    #   - The maximum number of keys that can be added to the metadata columns (meta_data_max_keys).
+    #   - The maximum length of each key in the metadata columns (meta_data_max_key_length).
+    #   - The maximum length of each value in the metadata columns (meta_data_max_value_length).
+    #   (default: +false+)
+    preference :meta_data_validation_enabled, :boolean, default: false
+
+    # @!attribute [rw] meta_data_max_keys
+    #   @return [Integer] Maximum keys that can be allocated in customer and admin metadata column (default: +6+)
+    preference :meta_data_max_keys, :integer, default: 6
+
+    # @!attribute [rw] meta_data_max_key_length
+    #   @return [Integer] Maximum length that key can have in customer and admin metadata column (default: +16+)
+    preference :meta_data_max_key_length, :integer, default: 16
+
+    # @!attribute [rw] meta_data_max_value_length
+    #   @return [Integer] Maximum length that value can have in customer and admin metadata column (default: +256+)
+    preference :meta_data_max_value_length, :integer, default: 256
 
     # @!attribute [rw] properties_per_page
     #   @return [Integer] Properties to show per-page in the admin (default: +15+)
@@ -430,6 +458,13 @@ module Spree
     #   as Spree::Wallet::AddPaymentSourcesToWallet.
     class_name_attribute :add_payment_sources_to_wallet_class, default: 'Spree::Wallet::AddPaymentSourcesToWallet'
 
+    # Allows providing your own class for recalculating totals on an item.
+    #
+    # @!attribute [rw] item_total_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::ItemTotal
+    class_name_attribute :item_total_class, default: 'Spree::ItemTotal'
+
     # Allows providing your own class for calculating taxes on an order.
     #
     # This extension point is under development and may change in a future minor release.
@@ -522,6 +557,13 @@ module Spree
     #   Spree::StoreCreditPrioritizer.
     class_name_attribute :store_credit_prioritizer_class, default: 'Spree::StoreCreditPrioritizer'
 
+    # Allows finding brand for product.
+    #
+    # @!attribute [rw] brand_selector_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::TaxonBrandSelector.
+    class_name_attribute :brand_selector_class, default: 'Spree::TaxonBrandSelector'
+
     # @!attribute [rw] taxon_image_style_default
     #
     # Defines which style to default to when style is not provided
@@ -550,6 +592,13 @@ module Spree
     # @return [Module] a module that can be included into Spree::Taxon to allow attachments
     # Enumerable of taxons adhering to the present_taxon_class interface
     class_name_attribute :taxon_attachment_module, default: "Spree::Taxon::ActiveStorageAttachment"
+
+    # Allows changing the default behavior for redirects when a user is not authorized
+    #
+    # @!attribute [rw] unauthorized_redirect_handler_class
+    # @return [Class] a class with the same public interfaces as
+    #  Spree::UnauthorizedRedirectHandler.
+    class_name_attribute :unauthorized_redirect_handler_class, default: "Spree::UnauthorizedRedirectHandler"
 
     # Set of classes that can be promotion adjustment sources
     add_class_set :adjustment_promotion_source_types, default: []
@@ -674,6 +723,14 @@ module Spree
         env.stock_splitters = %w[
           Spree::Stock::Splitter::ShippingCategory
           Spree::Stock::Splitter::Backordered
+        ]
+
+        env.subscribers = %w[
+          Spree::CartonShippedMailerSubscriber
+          Spree::OrderCancelMailerSubscriber
+          Spree::OrderConfirmationMailerSubscriber
+          Spree::OrderInventoryCancellationMailerSubscriber
+          Spree::ReimbursementMailerSubscriber
         ]
       end
     end

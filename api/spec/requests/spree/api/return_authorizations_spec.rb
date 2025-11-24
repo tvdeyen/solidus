@@ -83,7 +83,7 @@ module Spree::Api
       sign_in_as_admin!
 
       it "can show return authorization" do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         return_authorization = order.return_authorizations.first
         get spree.api_order_return_authorization_path(order, return_authorization.id)
         expect(response.status).to eq(200)
@@ -92,8 +92,8 @@ module Spree::Api
       end
 
       it "can get a list of return authorizations" do
-        FactoryBot.create(:return_authorization, order: order)
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
+        FactoryBot.create(:return_authorization, order:)
         get spree.api_order_return_authorizations_path(order), params: { order_id: order.number }
         expect(response.status).to eq(200)
         return_authorizations = json_response["return_authorizations"]
@@ -102,8 +102,8 @@ module Spree::Api
       end
 
       it 'can control the page size through a parameter' do
-        FactoryBot.create(:return_authorization, order: order)
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
+        FactoryBot.create(:return_authorization, order:)
         get spree.api_order_return_authorizations_path(order), params: { order_id: order.number, per_page: 1 }
         expect(json_response['count']).to eq(1)
         expect(json_response['current_page']).to eq(1)
@@ -111,7 +111,7 @@ module Spree::Api
       end
 
       it 'can query the results through a paramter' do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         expected_result = create(:return_authorization, memo: 'damaged')
         order.return_authorizations << expected_result
         get spree.api_order_return_authorizations_path(order), params: { q: { memo_cont: 'damaged' } }
@@ -121,13 +121,13 @@ module Spree::Api
 
       it "can learn how to create a new return authorization" do
         get spree.new_api_order_return_authorization_path(order)
-        expect(json_response["attributes"]).to eq(["id", "number", "state", "order_id", "memo", "created_at", "updated_at"])
+        expect(json_response["attributes"]).to eq(["id", "number", "state", "order_id", "memo", "created_at", "updated_at", "customer_metadata", "admin_metadata"])
         required_attributes = json_response["required_attributes"]
         expect(required_attributes).to include("order")
       end
 
       it "can update a return authorization on the order" do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         return_authorization = order.return_authorizations.first
         put spree.api_order_return_authorization_path(order, return_authorization.id), params: { return_authorization: { memo: "ABC" } }
         expect(response.status).to eq(200)
@@ -135,7 +135,7 @@ module Spree::Api
       end
 
       it "can cancel a return authorization on the order" do
-        FactoryBot.create(:new_return_authorization, order: order)
+        FactoryBot.create(:new_return_authorization, order:)
         return_authorization = order.return_authorizations.first
         expect(return_authorization.state).to eq("authorized")
         put spree.cancel_api_order_return_authorization_path(order, return_authorization.id)
@@ -144,11 +144,36 @@ module Spree::Api
       end
 
       it "can delete a return authorization on the order" do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         return_authorization = order.return_authorizations.first
         delete spree.api_order_return_authorization_path(order, return_authorization.id)
         expect(response.status).to eq(204)
         expect { return_authorization.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it "can view admin_metadata" do
+        FactoryBot.create(:return_authorization, order:)
+
+        return_authorization = order.return_authorizations.first
+
+        get spree.api_order_return_authorization_path(order, return_authorization.id)
+
+        expect(response.status).to eq(200)
+        expect(json_response).to have_attributes(attributes)
+        expect(json_response).to have_key('admin_metadata')
+      end
+
+      it "can update a return authorization on the order and metadata" do
+        FactoryBot.create(:return_authorization, order:)
+
+        return_authorization = order.return_authorizations.first
+
+        put spree.api_order_return_authorization_path(order, return_authorization.id), params: { return_authorization: { memo: "ABC", admin_metadata: { 'return_type' => 'warranty claim' }, customer_metadata: { 'return_reason' => 'product not working' } } }
+
+        expect(response.status).to eq(200)
+        expect(json_response).to have_attributes(attributes)
+        expect(json_response["admin_metadata"]).to eq({ 'return_type' => 'warranty claim' })
+        expect(json_response["customer_metadata"]).to eq({ 'return_reason' => 'product not working' })
       end
 
       it_behaves_like "a return authorization creator"
@@ -161,7 +186,7 @@ module Spree::Api
       end
 
       it "cannot update a return authorization on the order" do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         return_authorization = order.return_authorizations.first
         put spree.api_order_return_authorization_path(order, return_authorization.id), params: { return_authorization: { memo: "ABC" } }
         assert_unauthorized!
@@ -169,7 +194,7 @@ module Spree::Api
       end
 
       it "cannot delete a return authorization on the order" do
-        FactoryBot.create(:return_authorization, order: order)
+        FactoryBot.create(:return_authorization, order:)
         return_authorization = order.return_authorizations.first
         delete spree.api_order_return_authorization_path(order, return_authorization.id)
         assert_unauthorized!

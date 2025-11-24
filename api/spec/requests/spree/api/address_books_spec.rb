@@ -59,7 +59,13 @@ module Spree::Api
             put "/api/users/#{user.id}/address_book",
               params:  { address_book: harry_address_attributes.merge('id' => address.id) },
               headers: { Authorization: 'Bearer galleon' }
-          }.to change { Spree::UserAddress.count }.from(1).to(2)
+          }.to change { Spree::Address.count }.from(1).to(2)
+
+          expect {
+            put "/api/users/#{user.id}/address_book",
+              params:  { address_book: harry_address_attributes.merge('id' => address.id) },
+              headers: { Authorization: 'Bearer galleon' }
+          }.not_to change { Spree::UserAddress.count }.from(1)
 
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body).first).to include(harry_address_attributes)
@@ -80,6 +86,31 @@ module Spree::Api
                 headers: { Authorization: 'Bearer galleon' }
             }.to change { user.reload.ship_address.name }.from("Harry Potter").to("Hermione Granger")
 
+            expect(response.status).to eq(200)
+          end
+        end
+
+        context "when updating a default address with email, VAT-ID and reverse charge status" do
+          let(:user) { create(:user, spree_api_key: 'galleon') }
+          let(:changes) {
+            { name: "Hermione Granger", email: "hermoine@rowlingmags.com", vat_id: "AB1234567",
+                            reverse_charge_status: "enabled", id: user.ship_address.id}
+          }
+          before do
+            # Create "Harry Potter" default shipping address
+            user.save_in_address_book(harry_address_attributes, true)
+          end
+
+          it "changes the address and marks the changed address as default" do
+            expect {
+              put "/api/users/#{user.id}/address_book",
+                params:  { address_book: harry_address_attributes.merge(changes) },
+                headers: { Authorization: 'Bearer galleon' }
+            }.to change { user.reload.ship_address.name }.from("Harry Potter").to("Hermione Granger")
+
+            expect(json_response.first["reverse_charge_status"]).to eq("enabled")
+            expect(json_response.first["email"]).to eq("hermoine@rowlingmags.com")
+            expect(json_response.first["vat_id"]).to eq("AB1234567")
             expect(response.status).to eq(200)
           end
         end
@@ -119,7 +150,7 @@ module Spree::Api
           end
         end
 
-        it 'archives my address' do
+        it 'removes the address from my address book' do
           address = create(:address)
           user = create(:user, spree_api_key: 'galleon')
           user.save_in_address_book(address.attributes, false)
@@ -168,13 +199,19 @@ module Spree::Api
             put "/api/users/#{other_user.id}/address_book",
             params:  { address_book: updated_harry_address.merge('id' => address.id) },
             headers: { Authorization: 'Bearer galleon' }
-          }.to change { Spree::UserAddress.count }.from(1).to(2)
+          }.to change { Spree::Address.count }.from(1).to(2)
+
+          expect {
+            put "/api/users/#{other_user.id}/address_book",
+            params:  { address_book: updated_harry_address.merge('id' => address.id) },
+            headers: { Authorization: 'Bearer galleon' }
+          }.not_to change { Spree::UserAddress.count }.from(1)
 
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body).first).to include(updated_harry_address)
         end
 
-        it "archives another user's address" do
+        it "removes the address from the other user's address book" do
           address = create(:address)
           other_user = create(:user)
           other_user.save_in_address_book(address.attributes, false)

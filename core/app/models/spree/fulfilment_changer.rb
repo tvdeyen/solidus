@@ -86,15 +86,21 @@ module Spree
     # we can take from the desired location, we could end up with some items being backordered.
     def run_tracking_inventory
       # Retrieve how many on hand items we can take from desired stock location
-      available_quantity = [desired_shipment.stock_location.count_on_hand(variant), default_on_hand_quantity].max
-
+      available_quantity = get_available_quantity
       new_on_hand_quantity = [available_quantity, quantity].min
-      unstock_quantity = desired_shipment.stock_location.backorderable?(variant) ? quantity : new_on_hand_quantity
+      backordered_quantity = get_backordered_quantity(available_quantity, new_on_hand_quantity)
+
+      # Determine how many backordered and on_hand items we'll need to move. We
+      # don't want to move more than what's being asked. And we can't move a
+      # negative amount, which is why we need to perform our min/max logic here.
+      backordered_quantity_to_move = [backordered_quantity, quantity].min
+      on_hand_quantity_to_move = [quantity - backordered_quantity_to_move, 0].max
 
       ActiveRecord::Base.transaction do
         if handle_stock_counts?
           # We only run this query if we need it.
           current_on_hand_quantity = [current_shipment.inventory_units.pre_shipment.size, quantity].min
+          unstock_quantity = desired_shipment.stock_location.backorderable?(variant) ? quantity : new_on_hand_quantity
 
           # Restock things we will not fulfil from the current shipment anymore
           current_stock_location.restock(variant, current_on_hand_quantity, current_shipment)
@@ -105,19 +111,21 @@ module Spree
         # These two statements are the heart of this class. We change the number
         # of inventory units requested from one shipment to the other.
         # We order by state, because `'backordered' < 'on_hand'`.
+        # We start to move the new actual backordered quantity, so the remaining
+        # quantity can be set to on_hand state.
         current_shipment.
           inventory_units.
-          where(variant: variant).
+          where(variant:).
           order(state: :asc).
-          limit(new_on_hand_quantity).
-          update_all(shipment_id: desired_shipment.id, state: :on_hand)
+          limit(backordered_quantity_to_move).
+          update_all(shipment_id: desired_shipment.id, state: :backordered)
 
         current_shipment.
           inventory_units.
-          where(variant: variant).
+          where(variant:).
           order(state: :asc).
-          limit(quantity - new_on_hand_quantity).
-          update_all(shipment_id: desired_shipment.id, state: :backordered)
+          limit(on_hand_quantity_to_move).
+          update_all(shipment_id: desired_shipment.id, state: :on_hand)
       end
     end
 
@@ -127,7 +135,7 @@ module Spree
       ActiveRecord::Base.transaction do
         current_shipment.
           inventory_units.
-          where(variant: variant).
+          where(variant:).
           order(state: :asc).
           limit(quantity).
           update_all(shipment_id: desired_shipment.id)
@@ -141,11 +149,22 @@ module Spree
       current_shipment.order.completed? && current_stock_location != desired_stock_location
     end
 
-    def default_on_hand_quantity
+    def get_available_quantity
       if current_stock_location != desired_stock_location
-        0
+        desired_location_quantifier.positive_stock
       else
-        current_shipment.inventory_units.where(variant: variant).on_hand.count
+        sl_availability = current_location_quantifier.positive_stock
+        shipment_availability = current_shipment.inventory_units.where(variant: variant).on_hand.count
+        sl_availability + shipment_availability
+      end
+    end
+
+    def get_backordered_quantity(available_quantity, new_on_hand_quantity)
+      if current_stock_location != desired_stock_location
+        quantity - new_on_hand_quantity
+      else
+        shipment_quantity = current_shipment.inventory_units.where(variant: variant).size
+        shipment_quantity - available_quantity
       end
     end
 
@@ -156,9 +175,17 @@ module Spree
     end
 
     def enough_stock_at_desired_location
-      unless Spree::Stock::Quantifier.new(variant, desired_stock_location).can_supply?(quantity)
+      unless desired_location_quantifier.can_supply?(quantity)
         errors.add(:desired_shipment, :not_enough_stock_at_desired_location)
       end
+    end
+
+    def desired_location_quantifier
+      @desired_location_quantifier ||= Spree::Config.stock.quantifier_class.new(variant, desired_stock_location)
+    end
+
+    def current_location_quantifier
+      @current_location_quantifier ||= Spree::Config.stock.quantifier_class.new(variant, current_stock_location)
     end
 
     def desired_shipment_different_from_current

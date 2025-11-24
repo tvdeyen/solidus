@@ -200,7 +200,7 @@ module Spree::Api
         required_attributes = json_response["required_attributes"]
         expect(required_attributes).to include("name")
         expect(required_attributes).to include("price")
-        expect(required_attributes).to include("shipping_category_id")
+        expect(required_attributes).to include("shipping_category")
       end
 
       it_behaves_like "modifying product actions are restricted"
@@ -316,6 +316,13 @@ module Spree::Api
           expect(json_response["taxon_ids"]).to eq([taxon_1.id])
         end
 
+        it "puts primary taxon for the product" do
+          product_data[:primary_taxon_id] = taxon_1.id.to_s
+          post spree.api_products_path, params: { product: product_data }
+
+          expect(json_response["primary_taxon_id"]).to eq(taxon_1.id)
+        end
+
         # Regression test for https://github.com/spree/spree/issues/4123
         it "puts the created product in the given taxons" do
           product_data[:taxon_ids] = [taxon_1.id, taxon_2.id].join(',')
@@ -341,7 +348,7 @@ module Spree::Api
           expect(response.status).to eq(422)
           expect(json_response["error"]).to eq("Invalid resource. Please fix errors and try again.")
           errors = json_response["errors"]
-          expect(errors.keys).to include("name", "price", "shipping_category_id")
+          expect(errors.keys).to include("name", "price", "shipping_category")
         end
       end
 
@@ -372,7 +379,7 @@ module Spree::Api
           variant_hash = {
             sku: '123', price: 19.99, options: [{ name: "size", value: "small" }]
           }
-          variant_id = product.variants.create!({ product: product }.merge(variant_hash)).id
+          variant_id = product.variants.create!({ product: }.merge(variant_hash)).id
 
           put spree.api_product_path(product), params: { product: {
             variants: [
@@ -402,6 +409,13 @@ module Spree::Api
         it "puts the created product in the given taxon" do
           put spree.api_product_path(product), params: { product: { taxon_ids: taxon_1.id.to_s } }
           expect(json_response["taxon_ids"]).to eq([taxon_1.id])
+        end
+
+        it "puts primary taxon for the updated product" do
+          product.primary_taxon_id = taxon_2.id
+          put spree.api_product_path(product), params: { product: { primary_taxon_id: taxon_1.id } }
+
+          expect(json_response["primary_taxon_id"]).to eq(taxon_1.id)
         end
 
         # Regression test for https://github.com/spree/spree/issues/4123

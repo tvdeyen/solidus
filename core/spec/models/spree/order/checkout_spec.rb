@@ -5,7 +5,7 @@ require 'spree/testing_support/order_walkthrough'
 
 RSpec.describe Spree::Order, type: :model do
   let!(:store) { create(:store) }
-  let(:order) { create(:order, store: store) }
+  let(:order) { create(:order, store:) }
 
   def assert_state_changed(order, from, to)
     state_change_exists = order.state_changes.where(previous_state: from, next_state: to).exists?
@@ -54,11 +54,11 @@ RSpec.describe Spree::Order, type: :model do
 
     it "passes delivery state when transitioning from address over delivery to payment" do
       allow(order).to receive_messages payment_required?: true
-      order.state = "address"
+      order.update!(state: "address")
       expect(order.passed_checkout_step?("delivery")).to be false
-      order.state = "delivery"
+      order.update!(state: "delivery")
       expect(order.passed_checkout_step?("delivery")).to be false
-      order.state = "payment"
+      order.update!(state: "payment")
       expect(order.passed_checkout_step?("delivery")).to be true
     end
 
@@ -114,9 +114,11 @@ RSpec.describe Spree::Order, type: :model do
         end
 
         it "transitions to address" do
-          order.next!
-          assert_state_changed(order, 'cart', 'address')
-          expect(order.state).to eq("address")
+          perform_enqueued_jobs do
+            order.next!
+            assert_state_changed(order, 'cart', 'address')
+            expect(order.state).to eq("address")
+          end
         end
 
         it "doesn't raise an error if the default address is invalid" do
@@ -168,12 +170,12 @@ RSpec.describe Spree::Order, type: :model do
 
     context "from address" do
       let(:ship_address) { create(:ship_address) }
-      let!(:line_item) { create(:line_item, order: order, price: 10) }
+      let!(:line_item) { create(:line_item, order:, price: 10) }
       let!(:shipping_method) { create(:shipping_method) }
 
       before do
         order.line_items.reload
-        order.state = 'address'
+        order.update!(state: 'address')
         order.ship_address = ship_address
         order.email = "user@example.com"
         order.save!
@@ -189,7 +191,7 @@ RSpec.describe Spree::Order, type: :model do
 
       it "recalculates tax and updates totals" do
         zone = create(:zone, countries: [order.tax_address.country])
-        create(:tax_rate, tax_categories: [line_item.tax_category], amount: 0.05, zone: zone)
+        create(:tax_rate, tax_categories: [line_item.tax_category], amount: 0.05, zone:)
         order.next!
         expect(order).to have_attributes(
           adjustment_total: 0.5,
@@ -200,9 +202,11 @@ RSpec.describe Spree::Order, type: :model do
       end
 
       it "transitions to delivery" do
-        order.next!
-        assert_state_changed(order, 'address', 'delivery')
-        expect(order.state).to eq("delivery")
+        perform_enqueued_jobs do
+          order.next!
+          assert_state_changed(order, 'address', 'delivery')
+          expect(order.state).to eq("delivery")
+        end
       end
 
       it "does not call persist_order_address if there is no address on the order" do
@@ -242,16 +246,16 @@ RSpec.describe Spree::Order, type: :model do
       end
 
       context 'when order has default selected_shipping_rate_id', partial_double_verification: false do
-        let(:shipment) { create(:shipment, order: order) }
+        let(:shipment) { create(:shipment, order:) }
         let(:shipping_method) { create(:shipping_method) }
         let(:shipping_rate) {
           [
-          Spree::ShippingRate.create!(shipping_method: shipping_method, cost: 10.00, shipment: shipment)
+          Spree::ShippingRate.create!(shipping_method:, cost: 10.00, shipment:)
         ]
         }
 
         before do
-          order.state = 'address'
+          order.update!(state: 'address')
           shipment.selected_shipping_rate_id = shipping_rate.first.id
           order.email = "user@example.com"
           order.save!
@@ -267,9 +271,9 @@ RSpec.describe Spree::Order, type: :model do
 
       context "cannot transition to delivery" do
         context "if there are no shipping rates for any shipment" do
-          let!(:line_item){ create :line_item, order: order }
+          let!(:line_item){ create :line_item, order: }
           before do
-            order.state = 'address'
+            order.update!(state: 'address')
             order.email = 'user@example.com'
           end
           specify do
@@ -283,7 +287,7 @@ RSpec.describe Spree::Order, type: :model do
     context "from delivery", partial_double_verification: false do
 
       before do
-        order.state = 'delivery'
+        order.update!(state: 'delivery')
         allow(order).to receive(:ensure_available_shipping_rates) { true }
       end
 
@@ -293,9 +297,11 @@ RSpec.describe Spree::Order, type: :model do
         end
 
         it "transitions to payment" do
-          order.next!
-          assert_state_changed(order, 'delivery', 'payment')
-          expect(order.state).to eq('payment')
+          perform_enqueued_jobs do
+            order.next!
+            assert_state_changed(order, 'delivery', 'payment')
+            expect(order.state).to eq('payment')
+          end
         end
 
         it 'fails if billing address is required and missing' do
@@ -364,13 +370,13 @@ RSpec.describe Spree::Order, type: :model do
 
       before do
         user = create(:user, email: 'solidus@example.org', bill_address: user_bill_address)
-        default_credit_card.update(user: user)
+        default_credit_card.update(user:)
         wallet_payment_source = user.wallet.add(default_credit_card)
         user.wallet.default_wallet_payment_source = wallet_payment_source
         order.user = user
 
         allow(order).to receive_messages(payment_required?: true)
-        order.state = 'delivery'
+        order.update!(state: 'delivery')
         order.bill_address = order_bill_address
         order.save!
         order.next!
@@ -400,7 +406,7 @@ RSpec.describe Spree::Order, type: :model do
 
     context "from payment" do
       before do
-        order.state = 'payment'
+        order.update!(state: 'payment')
         allow(order).to receive(:ensure_available_shipping_rates) { true }
       end
 
@@ -409,9 +415,11 @@ RSpec.describe Spree::Order, type: :model do
         end
 
         it "transitions to confirm" do
-          order.next!
-          assert_state_changed(order, 'payment', 'confirm')
-          expect(order.state).to eq("confirm")
+          perform_enqueued_jobs do
+            order.next!
+            assert_state_changed(order, 'payment', 'confirm')
+            expect(order.state).to eq("confirm")
+          end
         end
       end
 
@@ -422,10 +430,12 @@ RSpec.describe Spree::Order, type: :model do
         end
 
         it "does not call process payments" do
-          expect(order).not_to receive(:process_payments!)
-          order.next!
-          assert_state_changed(order, 'payment', 'confirm')
-          expect(order.state).to eq("confirm")
+          perform_enqueued_jobs do
+            expect(order).not_to receive(:process_payments!)
+            order.next!
+            assert_state_changed(order, 'payment', 'confirm')
+            expect(order.state).to eq("confirm")
+          end
         end
       end
     end
@@ -433,7 +443,7 @@ RSpec.describe Spree::Order, type: :model do
 
   context "from confirm" do
     before do
-      order.state = 'confirm'
+      order.update!(state: 'confirm')
       order.save!
     end
 
@@ -448,7 +458,7 @@ RSpec.describe Spree::Order, type: :model do
 
   context "to complete" do
     before do
-      order.state = 'confirm'
+      order.update!(state: 'confirm')
       order.save!
     end
 
@@ -503,7 +513,7 @@ RSpec.describe Spree::Order, type: :model do
 
     context "with a payment in the pending state" do
       let(:order) { create :order_ready_to_complete }
-      let(:payment) { create :payment, order: order, state: "pending", amount: order.total }
+      let(:payment) { create :payment, order:, state: "pending", amount: order.total }
 
       it "allows the order to complete" do
         expect { order.complete! }.
@@ -556,7 +566,7 @@ RSpec.describe Spree::Order, type: :model do
         order.user = FactoryBot.create(:user)
         order.store = FactoryBot.create(:store)
         order.email = 'solidus@example.org'
-        order.payments << FactoryBot.create(:payment, order: order)
+        order.payments << FactoryBot.create(:payment, order:)
 
         # make sure we will actually capture a payment
         allow(order).to receive_messages(payment_required?: true)
@@ -610,7 +620,7 @@ RSpec.describe Spree::Order, type: :model do
       let(:order) { create(:order_with_line_items) }
 
       it 'can complete the order' do
-        create(:payment, state: 'completed', order: order, amount: order.total)
+        create(:payment, state: 'completed', order:, amount: order.total)
         order.recalculate
         expect(order.complete).to eq(true)
       end
@@ -662,7 +672,7 @@ RSpec.describe Spree::Order, type: :model do
 
   # Regression test for https://github.com/spree/spree/issues/3665
   context "with only a complete step" do
-    let!(:line_item){ create :line_item, order: order }
+    let!(:line_item){ create :line_item, order: }
 
     before do
       @old_checkout_flow = Spree::Order.checkout_flow
@@ -680,8 +690,10 @@ RSpec.describe Spree::Order, type: :model do
     it "does not attempt to check shipping rates" do
       order.email = 'user@example.com'
       expect(order).not_to receive(:ensure_available_shipping_rates)
-      order.next!
-      assert_state_changed(order, 'cart', 'complete')
+      perform_enqueued_jobs do
+        order.next!
+        assert_state_changed(order, 'cart', 'complete')
+      end
     end
 
     it "does not attempt to process payments", partial_double_verification: false do
@@ -692,8 +704,10 @@ RSpec.describe Spree::Order, type: :model do
       allow(order).to receive_messages(validate_line_item_availability: true)
       expect(order).not_to receive(:payment_required?)
       expect(order).not_to receive(:process_payments!)
-      order.next!
-      assert_state_changed(order, 'cart', 'complete')
+      perform_enqueued_jobs do
+        order.next!
+        assert_state_changed(order, 'cart', 'complete')
+      end
     end
   end
 

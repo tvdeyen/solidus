@@ -40,9 +40,16 @@ function unbundled {
 echo "~~~> Removing the old sandbox"
 rm -rf ./sandbox
 
+mkdir -p sandbox/app/assets/config
+cat <<MANIFEST > sandbox/app/assets/config/manifest.js
+//= link_tree ../images
+//= link_directory ../javascripts .js
+//= link_directory ../stylesheets .css
+MANIFEST
+
 echo "~~~> Creating a pristine Rails app"
 rails_version=`bundle exec ruby -e'require "rails"; puts Rails.version'`
-rails _${rails_version}_ new sandbox \
+bundle exec rails _${rails_version}_ new sandbox \
   --database="$RAILSDB" \
   --skip-git \
   --skip-keeps \
@@ -66,7 +73,7 @@ gem 'solidus_i18n'
 
 group :test, :development do
   platforms :mri do
-    gem 'pry-byebug'
+    gem 'debug'
   end
 
   gem 'better_errors'

@@ -5,6 +5,10 @@ if ENV["COVERAGE"]
   if ENV["COVERAGE_DIR"]
     SimpleCov.coverage_dir(ENV["COVERAGE_DIR"])
   end
+  if ENV["GITHUB_ACTIONS"]
+    require "simplecov-cobertura"
+    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  end
   SimpleCov.command_name('solidus:backend')
   SimpleCov.merge_timeout(3600)
   SimpleCov.start('rails')
@@ -43,7 +47,6 @@ require 'spree/testing_support/order_walkthrough'
 require 'spree/testing_support/capybara_ext'
 require 'spree/testing_support/precompiled_assets'
 require 'spree/testing_support/translations'
-require 'spree/testing_support/job_helpers'
 require 'spree/testing_support/blacklist_urls'
 require 'spree/testing_support/silence_deprecations'
 
@@ -51,26 +54,7 @@ require 'capybara-screenshot/rspec'
 Capybara.save_path = ENV['CIRCLE_ARTIFACTS'] if ENV['CIRCLE_ARTIFACTS']
 Capybara.exact = true
 
-require "selenium/webdriver"
-
-Capybara.register_driver :selenium_chrome_headless do |app|
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
-  browser_options.args << '--headless'
-  browser_options.args << '--disable-gpu'
-  browser_options.args << '--window-size=1920,1080'
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
-end
-Capybara.register_driver :selenium_chrome_headless_docker_friendly do |app|
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
-  browser_options.args << '--headless'
-  browser_options.args << '--disable-gpu'
-  # Sandbox cannot be used inside unprivileged Docker container
-  browser_options.args << '--no-sandbox'
-  browser_options.args << '--window-size=1240,1400'
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
-end
-
-Capybara.javascript_driver = (ENV['CAPYBARA_DRIVER'] || :selenium_chrome_headless).to_sym
+require "spree/testing_support/capybara_driver"
 
 Rails.application.config.i18n.raise_on_missing_translations = true
 
@@ -81,6 +65,11 @@ ActiveJob::Base.queue_adapter = :test
 Spree::TestingSupport::FactoryBot.add_paths_and_load!
 
 RSpec.configure do |config|
+  if ENV["GITHUB_ACTIONS"]
+    require "rspec/github"
+    config.add_formatter RSpec::Github::Formatter
+  end
+
   config.color = true
   config.infer_spec_type_from_file_location!
   config.expect_with :rspec do |c|
@@ -114,7 +103,7 @@ RSpec.configure do |config|
   config.include Spree::TestingSupport::ControllerRequests, type: :controller
   config.include Spree::TestingSupport::Flash
   config.include Spree::TestingSupport::Translations
-  config.include Spree::TestingSupport::JobHelpers
+  config.include ActiveJob::TestHelper
   config.include Spree::TestingSupport::BlacklistUrls
 
   config.example_status_persistence_file_path = "./spec/examples.txt"

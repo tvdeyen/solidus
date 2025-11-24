@@ -10,20 +10,19 @@ module Spree
   # promotion system.
   #
   class LineItem < Spree::Base
+    include Metadata
+
     belongs_to :order, class_name: "Spree::Order", inverse_of: :line_items, touch: true, optional: true
     belongs_to :variant, -> { with_discarded }, class_name: "Spree::Variant", inverse_of: :line_items, optional: true
     belongs_to :tax_category, class_name: "Spree::TaxCategory", optional: true
 
     has_one :product, through: :variant
 
-    has_many :adjustments, as: :adjustable, inverse_of: :adjustable, dependent: :destroy
+    has_many :adjustments, as: :adjustable, inverse_of: :adjustable, dependent: :destroy, autosave: true
     has_many :inventory_units, inverse_of: :line_item
 
-    has_many :line_item_actions, dependent: :destroy
-    has_many :actions, through: :line_item_actions
-
     before_validation :normalize_quantity
-    before_validation :set_required_attributes
+    after_initialize :set_required_attributes
 
     validates :variant, presence: true
     validates :quantity, numericality: {
@@ -39,6 +38,7 @@ module Spree
     before_destroy :destroy_inventory_units
 
     delegate :name, :description, :sku, :should_track_inventory?, to: :variant
+    delegate :tax_category, :tax_category_id, to: :variant, prefix: true
     delegate :currency, to: :order, allow_nil: true
 
     attr_accessor :target_shipment, :price_currency
@@ -99,7 +99,7 @@ module Spree
     # @return [Boolean] true when it is possible to supply the required
     #   quantity of stock of this line item's variant
     def sufficient_stock?
-      Stock::Quantifier.new(variant).can_supply? quantity
+      Spree::Config.stock.quantifier_class.new(variant).can_supply? quantity
     end
 
     # @return [Boolean] true when it is not possible to supply the required
@@ -131,6 +131,24 @@ module Spree
       Spree::Config.pricing_options_class.from_line_item(self)
     end
 
+    # @return [Spree::TaxCategory] the variant's tax category
+    #
+    # This returns the variant's tax category if the tax category ID on the line_item is nil. It looks
+    # like an association, but really is an override.
+    #
+    def tax_category
+      super || variant_tax_category
+    end
+
+    # @return [Integer] the variant's tax category ID
+    #
+    # This returns the variant's tax category ID if the tax category ID on the line_id is nil. It looks
+    # like an association, but really is an override.
+    #
+    def tax_category_id
+      super || variant_tax_category_id
+    end
+
     private
 
     # Sets the quantity to zero if it is nil or less than zero.
@@ -141,6 +159,7 @@ module Spree
     # Sets tax category, price-related attributes from
     # its variant if they are nil and a variant is present.
     def set_required_attributes
+      return if persisted?
       return unless variant
       self.tax_category ||= variant.tax_category
       set_pricing_attributes

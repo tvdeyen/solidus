@@ -15,6 +15,13 @@ class Spree::Carton < Spree::Base
   validates :inventory_units, presence: true
   validates :shipped_at, presence: true
 
+  # This accessor is used by the `Spree::CartonShippedMailerSubscriber`
+  # on carton creation to either send or suppress the associated
+  # carton shipped email.
+  #
+  # @return [boolean, NilClass] Whether the email should be suppressed.
+  attr_accessor :suppress_email
+
   make_permalink field: :number, length: 11, prefix: 'C'
 
   scope :trackable, -> { where("tracking IS NOT NULL AND tracking != ''") }
@@ -46,11 +53,11 @@ class Spree::Carton < Spree::Base
   end
 
   def manifest
-    @manifest ||= Spree::ShippingManifest.new(inventory_units: inventory_units).items
+    @manifest ||= Spree::ShippingManifest.new(inventory_units:).items
   end
 
   def manifest_for_order(order)
-    Spree::ShippingManifest.new(inventory_units: inventory_units).for_order(order).items
+    Spree::ShippingManifest.new(inventory_units:).for_order(order).items
   end
 
   def any_exchanges?

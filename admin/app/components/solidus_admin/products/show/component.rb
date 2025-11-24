@@ -22,7 +22,13 @@ class SolidusAdmin::Products::Show::Component < SolidusAdmin::BaseComponent
 
   def option_type_options
     @option_type_options ||= Spree::OptionType.order(:presentation).pluck(:presentation, :name, :id).map do
-      ["#{_1} (#{_2})", _3]
+      ["#{_2}:#{_1}", _3]
+    end
+  end
+
+  def condition_options
+    @condition_options ||= Spree::Variant.conditions.map do |key, value|
+      [t("spree.condition.#{key}"), value]
     end
   end
 end

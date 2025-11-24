@@ -8,7 +8,7 @@ class SolidusAdmin::UI::Table::Component < SolidusAdmin::BaseComponent
   BatchAction = Struct.new(:label, :icon, :action, :require_confirmation, :method, keyword_init: true) # rubocop:disable Lint/StructNewOverride
   private_constant :BatchAction, :Column, :Filter, :Scope, :Sortable
 
-  class Data < Struct.new(:rows, :class, :url, :prev, :next, :columns, :fade, :batch_actions, keyword_init: true) # rubocop:disable Lint/StructNewOverride,Style/StructInheritance
+  class Data < Struct.new(:rows, :class, :url, :prev, :next, :columns, :fade, :batch_actions, :page, :per_page, keyword_init: true) # rubocop:disable Lint/StructNewOverride,Style/StructInheritance
     def initialize(**args)
       super
 
@@ -71,7 +71,7 @@ class SolidusAdmin::UI::Table::Component < SolidusAdmin::BaseComponent
   def selectable_column
     @selectable_column ||= Column.new(
       header: -> {
-        component("ui/forms/checkbox").new(
+        component("ui/checkbox").new(
           form: batch_actions_form_id,
           "data-action": "#{stimulus_id}#selectAllRows",
           "data-#{stimulus_id}-target": "headerCheckbox",
@@ -79,7 +79,7 @@ class SolidusAdmin::UI::Table::Component < SolidusAdmin::BaseComponent
         )
       },
       data: ->(data) {
-        component("ui/forms/checkbox").new(
+        component("ui/checkbox").new(
           name: "id[]",
           form: batch_actions_form_id,
           value: data.id,
@@ -138,7 +138,7 @@ class SolidusAdmin::UI::Table::Component < SolidusAdmin::BaseComponent
       predicate: filter.predicate,
       options: filter.options,
       form: search_form_id,
-      index: index,
+      index:,
     )
   end
 
@@ -185,6 +185,8 @@ class SolidusAdmin::UI::Table::Component < SolidusAdmin::BaseComponent
   end
 
   def should_enable_sortable?
-    @sortable && @search&.on_default_scope?
+    return false if @sortable.nil?
+    return true if @search.nil?
+    @search.on_default_scope?
   end
 end

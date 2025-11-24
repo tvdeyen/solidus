@@ -86,12 +86,13 @@ RSpec.describe Spree::OrderCancellations do
       expect { subject }.to change { inventory_unit.state }.to "canceled"
     end
 
-    it "updates the shipment.state" do
-      expect { subject }.to change { shipment.reload.state }.from('ready').to('shipped')
-    end
+    it "publishes an 'order_short_shipped' event" do
+      stub_spree_bus
 
-    it "updates the order.shipment_state" do
-      expect { subject }.to change { order.shipment_state }.from('ready').to('shipped')
+      subject
+
+      expect(:order_short_shipped)
+        .to have_been_published.with(order:, inventory_units: [inventory_unit])
     end
 
     it "adjusts the order" do
@@ -102,11 +103,37 @@ RSpec.describe Spree::OrderCancellations do
       subject { described_class.new(order).short_ship(inventory_units) }
 
       let(:quantity) { 4 }
-      let!(:order) { create(:order_with_line_items, line_items_attributes: [{ quantity: quantity }]) }
+      let!(:order) { create(:order_with_line_items, line_items_attributes: [{ quantity: }]) }
       let(:inventory_units) { Spree::InventoryUnit.find(order.line_items.first.inventory_units.pluck(:id)) }
 
       it "adjusts the order" do
         expect { subject }.to change { order.reload.total }.by(-40.0)
+      end
+
+      context "when cancelling all items in a completed order" do
+        let!(:order) { create(:completed_order_with_totals, line_items_attributes: [{ quantity: }]) }
+
+        subject { described_class.new(order).short_ship(order.inventory_units) }
+
+        it "updates all of the inventory units" do
+          expect { subject }.to change { order.inventory_units.canceled.count }.to(quantity)
+        end
+
+        it "updates the shipment state" do
+          expect { subject }.to change { order.shipments.first.reload.state }.to("canceled")
+        end
+
+        context "when the shipment is already shipped" do
+          let!(:order) { create(:shipped_order, line_items_attributes: [{ quantity: }]) }
+
+          it "updates all of the inventory units" do
+            expect { subject }.to change { order.inventory_units.canceled.count }.to(quantity)
+          end
+
+          it "does not update the shipment state" do
+            expect { subject }.not_to change { order.shipments.first.reload.state }.from("shipped")
+          end
+        end
       end
     end
 
@@ -117,7 +144,7 @@ RSpec.describe Spree::OrderCancellations do
       subject
     end
 
-    context "when send_cancellation_mailer is false" do
+    context "when send_cancellation_mailer is false", :silence_deprecations do
       subject { described_class.new(order).short_ship([inventory_unit]) }
 
       before do
@@ -155,7 +182,7 @@ RSpec.describe Spree::OrderCancellations do
 
         # make the total $1.67 so it divides unevenly
         line_item.adjustments.create!(
-          order: order,
+          order:,
           amount: 0.01,
           label: 'some promo',
           source: nil,

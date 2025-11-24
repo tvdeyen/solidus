@@ -4,12 +4,14 @@ module Spree
   # An order's planned shipments including tracking and cost.
   #
   class Shipment < Spree::Base
+    include Metadata
+
     belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :shipments, optional: true
     belongs_to :stock_location, class_name: 'Spree::StockLocation', optional: true
 
-    has_many :adjustments, as: :adjustable, inverse_of: :adjustable, dependent: :delete_all
+    has_many :adjustments, as: :adjustable, inverse_of: :adjustable, dependent: :delete_all, autosave: true
     has_many :inventory_units, dependent: :destroy, inverse_of: :shipment
-    has_many :shipping_rates, -> { order(:cost) }, dependent: :destroy, inverse_of: :shipment
+    has_many :shipping_rates, -> { order(:cost) }, dependent: :destroy, inverse_of: :shipment, autosave: true
     has_many :shipping_methods, through: :shipping_rates
     has_many :state_changes, as: :stateful
     has_many :cartons, -> { distinct }, through: :inventory_units
@@ -31,7 +33,7 @@ module Spree
     scope :ready,   -> { with_state('ready') }
     scope :shipped, -> { with_state('shipped') }
     scope :trackable, -> { where("tracking IS NOT NULL AND tracking != ''") }
-    scope :with_state, ->(*state) { where(state: state) }
+    scope :with_state, ->(*state) { where(state:) }
     # sort by most recent shipped_at, falling back to created_at. add "id desc" to make specs that involve this scope more deterministic.
     scope :reverse_chronological, -> {
       order(Arel.sql("coalesce(#{Spree::Shipment.table_name}.shipped_at, #{Spree::Shipment.table_name}.created_at) desc"), id: :desc)
@@ -175,7 +177,7 @@ module Spree
     end
 
     def manifest
-      @manifest ||= Spree::ShippingManifest.new(inventory_units: inventory_units).items
+      @manifest ||= Spree::ShippingManifest.new(inventory_units:).items
     end
 
     def selected_shipping_rate_id
@@ -198,15 +200,11 @@ module Spree
       end
     end
 
-    # Determines the appropriate +state+ according to the following logic:
-    #
-    # canceled   if order is canceled
-    # pending    unless order is complete and +order.payment_state+ is +paid+
-    # shipped    if already shipped (ie. does not change the state)
-    # ready      all other cases
     def determine_state(order)
-      return 'canceled' if order.canceled?
+      Spree.deprecator.warn "Use Spree::Shipment#recalculate_state instead"
+
       return 'shipped' if shipped?
+      return 'canceled' if order.canceled? || inventory_units.all?(&:canceled?)
       return 'pending' unless order.can_ship?
       if can_transition_from_pending_to_ready?
         'ready'
@@ -215,9 +213,30 @@ module Spree
       end
     end
 
+    # Assigns the appropriate +state+ according to the following logic:
+    #
+    # canceled   if order is canceled
+    # pending    unless order is complete and +order.payment_state+ is +paid+
+    # shipped    if already shipped (ie. does not change the state)
+    # ready      all other cases
+    def recalculate_state
+      self.state =
+        if shipped?
+          "shipped"
+        elsif order.canceled? || inventory_units.all?(&:canceled?)
+          "canceled"
+        elsif !order.can_ship?
+          "pending"
+        elsif can_transition_from_pending_to_ready?
+          "ready"
+        else
+          "pending"
+        end
+    end
+
     def set_up_inventory(state, variant, _order, line_item)
       inventory_units.create(
-        state: state,
+        state:,
         variant_id: variant.id,
         line_item_id: line_item.id
       )
@@ -263,7 +282,7 @@ module Spree
         self.cost = selected_shipping_rate.cost
         if changed?
           update_columns(
-            cost: cost,
+            cost:,
             updated_at: Time.current
           )
         end
@@ -290,12 +309,9 @@ module Spree
     # called.
     def update_state
       old_state = state
-      new_state = determine_state(order)
+      new_state = recalculate_state
       if new_state != old_state
-        update_columns(
-          state: new_state,
-          updated_at: Time.current
-        )
+        update_columns state: new_state, updated_at: Time.current
         after_ship if new_state == 'shipped'
       end
     end
@@ -312,7 +328,7 @@ module Spree
     end
 
     def after_ship
-      order.shipping.ship_shipment(self, suppress_mailer: suppress_mailer)
+      order.shipping.ship_shipment(self, suppress_mailer:)
     end
 
     def can_get_rates?
@@ -339,7 +355,7 @@ module Spree
 
     def ensure_can_destroy
       if shipped? || canceled?
-        errors.add(:state, :cannot_destroy, state: state)
+        errors.add(:state, :cannot_destroy, state:)
         throw :abort
       end
     end

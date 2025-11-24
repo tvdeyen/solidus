@@ -184,8 +184,9 @@ describe "Users", :js, type: :feature do
     end
 
     context "when a user has ordered before" do
+      let!(:user) { create(:user, :with_orders, email: "loyal_customer@example.com") }
+
       before do
-        create(:user, :with_orders, email: "loyal_customer@example.com")
         visit "/admin/users"
         find_row("loyal_customer@example.com").click
         click_on "Order History"
@@ -202,6 +203,65 @@ describe "Users", :js, type: :feature do
         expect(page).to have_content(/R\d+/) # Matches on any order number.
         expect(page).to have_content("Shipment")
         expect(page).to have_content("Payment")
+        expect(page).not_to have_content("No Orders found.")
+      end
+
+      context 'with a different currency' do
+        around do |example|
+          currency_was = Spree::Config.currency
+          Spree::Config.currency = 'EUR'
+          example.run
+          Spree::Config.currency = currency_was
+        end
+
+        it 'displays correct currency' do
+          page.assert_selector('section table td:last-child', exact_text: /€\d\.\d{2}/, count: user.orders.count)
+        end
+      end
+    end
+  end
+
+  context "when viewing a user's purchased items" do
+    context "when a user has no purchased items" do
+      before do
+        create(:user, email: "customer@example.com")
+        visit "/admin/users"
+        find_row("customer@example.com").click
+        click_on "Items"
+      end
+
+      it "shows the purchased items page" do
+        expect(page).to have_content("Users / customer@example.com / Items Purchased")
+        expect(page).to have_content("Lifetime Stats")
+        expect(page).to have_content("Items Purchased")
+        expect(page).to be_axe_clean
+      end
+
+      it "shows the appropriate content" do
+        expect(page).to have_content("No Orders found.")
+      end
+    end
+
+    context "when a user has ordered before" do
+      before do
+        create(:order_with_line_items, user: create(:user, email: "loyal_customer@example.com"))
+        visit "/admin/users"
+        find_row("loyal_customer@example.com").click
+        click_on "Items"
+      end
+
+      it "shows the purchased items page" do
+        expect(page).to have_content("Users / loyal_customer@example.com / Items Purchased")
+        expect(page).to have_content("Lifetime Stats")
+        expect(page).to have_content("Items Purchased")
+        expect(page).to be_axe_clean
+      end
+
+      it "lists the purchased items" do
+        expect(page).to have_content(/R\d+/) # Matches on any order number.
+        expect(page).to have_content("Description")
+        expect(page).to have_content("Qty")
+        expect(page).to have_content("State")
         expect(page).not_to have_content("No Orders found.")
       end
     end

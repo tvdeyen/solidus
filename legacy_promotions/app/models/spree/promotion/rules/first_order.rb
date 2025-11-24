@@ -14,7 +14,7 @@ module Spree
           @user = order.try(:user) || options[:user]
           @email = order.email
 
-          if (user || email) && (completed_orders.present? && completed_orders.first != order)
+          if (user || email) && completed_orders.present? && completed_orders.first != order
             eligibility_errors.add(:base, eligibility_error_message(:not_first_order), error_code: :not_first_order)
           end
 
@@ -24,11 +24,11 @@ module Spree
         private
 
         def completed_orders
-          user ? user.orders.complete : orders_by_email
+          user ? user.orders.complete.not_canceled : orders_by_email
         end
 
         def orders_by_email
-          Spree::Order.where(email: email).complete
+          Spree::Order.where(email:).complete.not_canceled
         end
       end
     end

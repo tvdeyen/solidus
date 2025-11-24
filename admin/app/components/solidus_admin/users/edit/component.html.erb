@@ -12,30 +12,28 @@
   <% end %>
 
   <%= page_header do %>
-    <% tabs.each do |tab| %>
-      <%= render(component("ui/button").new(tag: :a, scheme: :ghost, text: tab[:text], 'aria-current': tab[:current], href: tab[:href])) %>
-    <% end %>
+    <%= render component("users/edit/tabs").new(user: @user, current: :account) %>
   <% end %>
 
   <%= page_with_sidebar do %>
     <%= page_with_sidebar_main do %>
 
       <%= render component('ui/panel').new(title: Spree.user_class.model_name.human) do %>
-        <%= form_for @user, url: solidus_admin.user_path(@user), html: { id: form_id, autocomplete: "off" } do |f| %>
+        <%= solidus_form_for @user, url: solidus_admin.user_path(@user), html: { id: form_id, autocomplete: "off" } do |f| %>
           <div class="py-1.5">
-            <%= render component("ui/forms/field").text_field(f, :email) %>
+            <%= f.text_field(:email) %>
           </div>
           <div class="py-1.5">
-            <%= render component("ui/forms/field").text_field(f, :password) %>
+            <%= f.text_field(:password) %>
           </div>
           <div class="py-1.5">
-            <%= render component("ui/forms/field").text_field(f, :password_confirmation) %>
+            <%= f.text_field(:password_confirmation) %>
           </div>
           <div class="py-1.5">
-            <%= render component("ui/checkbox_row").new(options: role_options, row_title: "Roles", form: f, method: "spree_role_ids", layout: :subsection) %>
+            <%= f.checkbox_row(:spree_role_ids, options: role_options, row_title: "Roles", layout: :subsection) %>
           </div>
           <div class="py-1.5 text-center">
-            <%= render component("ui/button").new(tag: :button, text: t(".update"), form: form_id) %>
+            <%= f.submit(text: t(".update")) %>
             <%= render component("ui/button").new(tag: :a, text: t(".cancel"), href: solidus_admin.user_path(@user), scheme: :secondary) %>
           </div>
         <% end %>
@@ -46,17 +44,7 @@
     <% end %>
 
     <%= page_with_sidebar_aside do %>
-      <%= render component("ui/panel").new(title: t("spree.lifetime_stats")) do %>
-        <%= render component("ui/details_list").new(
-          items: [
-            { label: t("spree.total_sales"), value: @user.display_lifetime_value.to_html },
-            { label: t("spree.order_count"), value: @user.order_count.to_i },
-            { label: t("spree.average_order_value"), value: @user.display_average_order_value.to_html },
-            { label: t("spree.member_since"), value: @user.created_at.to_date },
-            { label: t(".last_active"), value: last_login(@user) },
-          ]
-        ) %>
-      <% end %>
+      <%= render component("users/stats").new(user: @user) %>
     <% end %>
   <% end %>
 <% end %>

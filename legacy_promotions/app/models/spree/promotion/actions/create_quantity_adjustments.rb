@@ -6,7 +6,7 @@ module Spree
       class CreateQuantityAdjustments < CreateItemAdjustments
         preference :group_size, :integer, default: 1
 
-        has_many :line_item_actions, foreign_key: :action_id, dependent: :destroy
+        has_many :line_item_actions, foreign_key: :action_id, dependent: :destroy, inverse_of: :action
         has_many :line_items, through: :line_item_actions
 
         ##
@@ -57,7 +57,7 @@ module Spree
         #
         def compute_amount(line_item)
           adjustment_amount = calculator.compute(PartialLineItem.new(line_item))
-          adjustment_amount ||= BigDecimal(0)
+          adjustment_amount ||= Spree::ZERO
           adjustment_amount = adjustment_amount.abs
 
           order = line_item.order

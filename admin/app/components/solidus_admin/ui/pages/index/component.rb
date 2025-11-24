@@ -22,11 +22,16 @@ class SolidusAdmin::UI::Pages::Index::Component < SolidusAdmin::BaseComponent
 
   def initialize(page:)
     @page = page
-    @tabs = tabs&.map { |tab| Tab.new(**tab) }
   end
 
   def row_fade(_record)
     false
+  end
+
+  def renderable_tabs
+    return unless tabs
+
+    tabs.map { |tab| Tab.new(**tab) }
   end
 
   def title
@@ -61,8 +66,8 @@ class SolidusAdmin::UI::Pages::Index::Component < SolidusAdmin::BaseComponent
       value: search_params,
       url: search_url,
       searchbar_key: search_key,
-      filters: filters,
-      scopes: scopes,
+      filters:,
+      scopes:,
     }
   end
 
@@ -80,13 +85,15 @@ class SolidusAdmin::UI::Pages::Index::Component < SolidusAdmin::BaseComponent
       id: stimulus_id,
       data: {
         class: model_class,
-        rows: rows,
+        rows:,
         fade: -> { row_fade(_1) },
         prev: prev_page_path,
         next: next_page_path,
-        columns: columns,
-        batch_actions: batch_actions,
+        columns:,
+        batch_actions:,
         url: -> { row_url(_1) },
+        page: @page.number,
+        per_page: @page.recordset.ratios.fixed,
       },
       search: search_options,
       sortable: sortable_options,

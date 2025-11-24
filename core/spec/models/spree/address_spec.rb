@@ -7,8 +7,8 @@ RSpec.describe Spree::Address, type: :model do
 
   context "validation" do
     let(:country) { create :country, states_required: true }
-    let(:state) { create :state, name: 'maryland', abbr: 'md', country: country }
-    let(:address) { build(:address, country: country) }
+    let(:state) { create :state, name: 'maryland', abbr: 'md', country: }
+    let(:address) { build(:address, country:) }
 
     context 'state validation' do
       let(:state_validator) { instance_spy(Spree::Address.state_validator_class) }
@@ -278,13 +278,13 @@ RSpec.describe Spree::Address, type: :model do
 
     context 'both name and abbr is present' do
       let(:state) { Spree::State.new name: 'virginia', abbr: 'va' }
-      let(:address) { Spree::Address.new state: state }
+      let(:address) { Spree::Address.new state: }
       specify { expect(address.state_text).to eq('va') }
     end
 
     context 'only name is present' do
       let(:state) { Spree::State.new name: 'virginia', abbr: nil }
-      let(:address) { Spree::Address.new state: state }
+      let(:address) { Spree::Address.new state: }
       specify { expect(address.state_text).to eq('virginia') }
     end
   end
@@ -293,5 +293,59 @@ RSpec.describe Spree::Address, type: :model do
     subject { described_class.new }
 
     it { is_expected.to be_require_phone }
+  end
+
+  describe 'enum reverse_charge_status' do
+    it 'defines the expected enum values' do
+      expect(Spree::Address.reverse_charge_statuses).to eq({
+        'disabled' => 0,
+        'enabled' => 1,
+        'not_validated' => 2
+      })
+    end
+
+    context 'allows valid values' do
+      it 'has not_validated value' do
+        address = build(:address)
+        # Updates the reverse_charge_status to "not_validated"
+        address.reverse_charge_status_not_validated!
+
+        expect(address).to be_valid
+      end
+
+      it 'has disabled value' do
+        address = build(:address)
+        # Updates the reverse_charge_status to "disabled"
+        address.reverse_charge_status_disabled!
+
+        expect(address).to be_valid
+      end
+
+      it 'has enabled value' do
+        address = build(:address)
+        # Updates the reverse_charge_status to "enabled"
+        address.reverse_charge_status_enabled!
+
+        expect(address).to be_valid
+      end
+    end
+
+    it 'raises an error for invalid values' do
+      expect { Spree::Address.new(reverse_charge_status: :invalid_status) }.to raise_error(ArgumentError)
+    end
+  end
+
+  context 'ensure fields are stored' do
+    let(:address) { build(:address) }
+
+    it 'saves email correctly' do
+      address.email = 'test@example.com'
+      expect(address.save).to be true
+    end
+
+    it 'saves vat_id correctly' do
+      address.vat_id = 'AB123'
+      expect(address.save).to be true
+    end
   end
 end

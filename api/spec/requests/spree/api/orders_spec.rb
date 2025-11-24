@@ -14,7 +14,7 @@ module Spree::Api
        :user_id, :created_at, :updated_at,
        :completed_at, :payment_total, :shipment_state,
        :payment_state, :email, :special_instructions,
-       :total_quantity, :display_item_total, :currency]
+       :total_quantity, :display_item_total, :currency, :customer_metadata]
     }
 
     let(:address_params) { { country_id: Country.first.id, state_id: State.first.id } }
@@ -76,6 +76,68 @@ module Spree::Api
               }.not_to change { Spree::Payment.count }
             end
           end
+        end
+      end
+
+      context "when the user is not admin but has ability to create and update orders" do
+        custom_authorization! do |_|
+          can [:update, :create], Spree::Order
+        end
+
+        let(:attributes_with_metadata) {
+          { email: "foo@foobar.com",
+            customer_metadata: { 'Note' => 'Do not ring the bell' },
+            admin_metadata: { 'Customer_type' => 'Corporate giant' } }
+        }
+
+        let(:order_update_data_with_admin_metadata){
+          {
+            email: "new_email@update.com",
+            admin_metadata: { 'Serial_number' => 'Sn98765' }
+          }
+        }
+
+        it "allows creating order with customer metadata but not admin metadata" do
+          post spree.api_orders_path, params: { order: attributes_with_metadata }
+
+          expect(json_response['customer_metadata']).to eq({ 'Note' => 'Do not ring the bell' })
+          expect(json_response).not_to have_key('admin_metadata')
+
+          created_order = Spree::Order.last
+
+          expect(created_order.admin_metadata).to eq({})
+        end
+
+        it "allows updating order but ignores admin metadata" do
+          order = create(:order)
+
+          put spree.api_order_path(order), params: { order: order_update_data_with_admin_metadata }
+
+          expect(json_response['email']).to eq( "new_email@update.com" )
+          expect(json_response).not_to have_key('admin_metadata')
+
+          order.reload
+
+          expect(order.admin_metadata).to eq({})
+        end
+
+        it "cannot view admin_metadata" do
+          allow_any_instance_of(Spree::Order).to receive_messages user: current_api_user
+
+          get spree.api_order_path(order)
+
+          expect(json_response).not_to have_key('admin_metadata')
+        end
+
+        it "cannot update customer metadata if the order is complete" do
+          order = create(:order)
+          order.completed_at = Time.current
+          order.state = 'complete'
+          order.save!
+
+          put spree.api_order_path(order), params: { order: attributes_with_metadata }
+
+          expect(json_response['customer_metadata']).to eq({})
         end
       end
 
@@ -226,7 +288,7 @@ module Spree::Api
     context "the current api user is authenticated" do
       let(:current_api_user) { order.user }
       let(:store) { create(:store) }
-      let(:order) { create(:order, line_items: [line_item], store: store) }
+      let(:order) { create(:order, line_items: [line_item], store:) }
 
       it "can view all of their own orders for the current store" do
         get spree.api_my_orders_path, headers: { 'SERVER_NAME' => store.url }
@@ -257,11 +319,11 @@ module Spree::Api
       it "returns orders in reverse chronological order by completed_at" do
         order.update_columns completed_at: Time.current, created_at: 3.days.ago
 
-        order_two = Spree::Order.create user: order.user, completed_at: Time.current - 1.day, created_at: 2.days.ago, store: store
+        order_two = Spree::Order.create(user: order.user, completed_at: Time.current - 1.day, created_at: 2.days.ago, store:)
         expect(order_two.created_at).to be > order.created_at
-        order_three = Spree::Order.create user: order.user, completed_at: nil, created_at: 1.day.ago, store: store
+        order_three = Spree::Order.create(user: order.user, completed_at: nil, created_at: 1.day.ago, store:)
         expect(order_three.created_at).to be > order_two.created_at
-        order_four = Spree::Order.create user: order.user, completed_at: nil, created_at: 0.days.ago, store: store
+        order_four = Spree::Order.create(user: order.user, completed_at: nil, created_at: 0.days.ago, store:)
         expect(order_four.created_at).to be > order_three.created_at
 
         get spree.api_my_orders_path, headers: { 'SERVER_NAME' => store.url }
@@ -288,7 +350,7 @@ module Spree::Api
         let(:current_api_user) { nil }
 
         before do
-          get spree.api_current_order_path(format: 'json'), params: { order_token: order_token }
+          get spree.api_current_order_path(format: 'json'), params: { order_token: }
         end
 
         context "when the spree guest token is not present" do
@@ -319,7 +381,7 @@ module Spree::Api
 
     describe 'GET #show' do
       let(:order) { create :order_with_line_items }
-      let(:adjustment) { FactoryBot.create(:adjustment, adjustable: order, order: order) }
+      let(:adjustment) { FactoryBot.create(:adjustment, adjustable: order, order:) }
 
       subject { get spree.api_order_path(order) }
 
@@ -372,7 +434,7 @@ module Spree::Api
       end
 
       context 'when credit cards are present' do
-        let!(:payment) { create(:credit_card_payment, order: order, source: credit_card) }
+        let!(:payment) { create(:credit_card_payment, order:, source: credit_card) }
         let(:credit_card) { create(:credit_card, address: create(:address)) }
 
         it 'contains the credit cards' do
@@ -391,7 +453,7 @@ module Spree::Api
       end
 
       context 'when store credit is present' do
-        let!(:payment) { create(:store_credit_payment, order: order, source: store_credit) }
+        let!(:payment) { create(:store_credit_payment, order:, source: store_credit) }
         let(:store_credit) { create(:store_credit) }
 
         it 'renders the payment source view for store credit' do
@@ -450,7 +512,7 @@ module Spree::Api
 
     it "assigns email when creating a new order" do
       post spree.api_orders_path, params: { order: { email: "guest@solidus.io" } }
-      expect(json_response['email']).not_to eq controller.current_api_user
+      expect(json_response['email']).not_to eq current_api_user.email
       expect(json_response['email']).to eq "guest@solidus.io"
     end
 
@@ -648,7 +710,7 @@ module Spree::Api
         let(:line_item) { order.line_items.first }
 
         it "can empty an order" do
-          create(:adjustment, order: order, adjustable: order)
+          create(:adjustment, order:, adjustable: order)
           put spree.empty_api_order_path(order)
           expect(response.status).to eq(200)
           expect(json_response['id']).to eq(order.id)
@@ -683,7 +745,7 @@ module Spree::Api
         it "lists line item adjustments" do
           adjustment = create(:adjustment,
             label: "10% off!",
-            order: order,
+            order:,
             adjustable: order.line_items.first)
           adjustment.update_column(:amount, 5)
           get spree.api_order_path(order)
@@ -924,6 +986,32 @@ module Spree::Api
 
           expect(json_response['error']).to eq(I18n.t(:could_not_transition, scope: "spree.api", resource: 'order'))
           expect(response.status).to eq(422)
+        end
+
+        it "can update a order admin_metadata" do
+          put spree.api_order_path(order), params: { order: { admin_metadata: { 'order_number' => 'PN345678' } } }
+
+          expect(response.status).to eq(200)
+
+          expect(json_response["admin_metadata"]).to eq({ 'order_number' => 'PN345678' })
+        end
+
+        it "can update customer metadata if the order is complete" do
+          order = create(:order)
+          order.completed_at = Time.current
+          order.state = 'complete'
+          order.save!
+
+          put spree.api_order_path(order), params: { order: { customer_metadata: { 'Note' => 'Do not ring the bell' }, admin_metadata: { 'order_number' => 'PN345678' } } }
+
+          expect(json_response['customer_metadata']).to eq({ 'Note' => 'Do not ring the bell' })
+          expect(json_response["admin_metadata"]).to eq({ 'order_number' => 'PN345678' })
+        end
+
+        it "can view admin_metadata" do
+          get spree.api_order_path(order)
+
+          expect(json_response).to have_key('admin_metadata')
         end
       end
 

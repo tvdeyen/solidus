@@ -1,7 +1,7 @@
 <div class="<%= stimulus_id %>" data-controller="<%= stimulus_id %>">
   <%= turbo_frame_tag "edit_order_#{params[:type]}_address_modal" do %>
     <%= render component("ui/modal").new(title: t(".title.#{@type}")) do |modal| %>
-      <%= form_for @order, url: solidus_admin.send("order_#{@type}_address_path", @order), html: { id: form_id } do |form| %>
+      <%= solidus_form_for @order, url: solidus_admin.send("order_#{@type}_address_path", @order), html: { id: form_id } do |form| %>
         <div class="w-full flex flex-col mb-4">
           <div class="flex justify-between items-center mb-4 relative">
             <h2 class="text-sm font-semibold">
@@ -28,23 +28,15 @@
 
           <div class="w-full flex gap-4">
             <%= turbo_frame_tag address_frame_id do %>
-              <%= render component('ui/forms/address').new(address: @address, name: "order[#{@type}_address_attributes]") %>
+              <%= render component('ui/forms/address').new(addressable: @address, form_field_name: "order[#{@type}_address_attributes]") %>
             <% end %>
           </div>
 
-          <label class="flex gap-2 items-center">
-            <%= form.hidden_field use_attribute, value: '0', id: false %>
-
-            <%= render component("ui/forms/checkbox").new(
-              name: "#{form.object_name}[#{use_attribute}]",
-              checked: @address == (@type == 'ship' ? @order.bill_address : @order.ship_address),
-              value: '1'
-            ) %>
-
-            <span class="font-normal text-xs">
-              <%= t(".use_this_address.#{@type}") %>
-            </span>
-          </label>
+          <%= form.checkbox(use_attribute,
+            checked: @address == (@type == 'ship' ? @order.bill_address : @order.ship_address),
+            label: t(".use_this_address.#{@type}"),
+            label_options: { size: :xs })
+          %>
         </div>
       <% end %>
 
@@ -56,11 +48,7 @@
           ) %>
         </form>
 
-        <%= render component("ui/button").new(
-          tag: :button,
-          text: t(".save"),
-          form: form_id
-        ) %>
+        <%= render component("ui/button").save(form: form_id) %>
       <% end %>
     <% end %>
   <% end %>

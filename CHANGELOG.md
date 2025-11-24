@@ -1,3 +1,416 @@
+## Solidus v4.6.0 (2025-09-09)
+
+<!-- Please, don't edit manually. The content is automatically generated. -->
+
+## Solidus
+
+* Fix typos by @jackhac in https://github.com/solidusio/solidus/pull/6207
+
+## Solidus Core
+
+* Fix typos by @jackhac in https://github.com/solidusio/solidus/pull/6207
+* Display the store's currency in the Admin Order Index Component by @magpieuk in https://github.com/solidusio/solidus/pull/5929
+* Respect Spree.user_class' table name in metadata migration by @tvdeyen in https://github.com/solidusio/solidus/pull/6157
+* Better Spree::UserAddress scope deprecation warnings by @tvdeyen in https://github.com/solidusio/solidus/pull/6163
+* Add new order events by @benjaminwil in https://github.com/solidusio/solidus/pull/6170
+* [Docs] Fix Meta Data Restriction Comment to reflect default setting by @fthobe in https://github.com/solidusio/solidus/pull/6171
+* Separate order mailer subscriber from reimbursement mailer subscriber by @benjaminwil in https://github.com/solidusio/solidus/pull/6156
+* Fixed migrations so you can rollback them all by @aiperon in https://github.com/solidusio/solidus/pull/6188
+* Inherit from ActiveRecord::Migration version for all supported Rails by @harmonymjb in https://github.com/solidusio/solidus/pull/6192
+* Move OrderMailerSubscriber#send_confirmation_email by @benjaminwil in https://github.com/solidusio/solidus/pull/6199
+* Add reverse charge status to stores by @fthobe in https://github.com/solidusio/solidus/pull/6136
+* Fix flaky test errors using chrome 134 by @tvdeyen in https://github.com/solidusio/solidus/pull/6203
+* Move carton shipped emails to subscriber by @benjaminwil in https://github.com/solidusio/solidus/pull/6219
+* Change migration version to 7.0 by @AlistairNorman in https://github.com/solidusio/solidus/pull/6220
+* Add subscribers for inventory cancellation and order cancellation emails by @benjaminwil in https://github.com/solidusio/solidus/pull/6205
+* Make linters happy by @tvdeyen in https://github.com/solidusio/solidus/pull/6223
+* Disallow migrations with the wrong versions by @benjaminwil in https://github.com/solidusio/solidus/pull/6221
+* Add reverse charge fields to address by @fthobe in https://github.com/solidusio/solidus/pull/6168
+* Dummy app generator: Only configure app/assets/javascripts if present by @mamhoff in https://github.com/solidusio/solidus/pull/6227
+* Use Firefox for system specs by @mamhoff in https://github.com/solidusio/solidus/pull/6230
+* Configurable Solidus event subscribers by @benjaminwil in https://github.com/solidusio/solidus/pull/6234
+* Move Taxon -> Promotion Rule association to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/6243
+* Require spree/config in spree/core by @mamhoff in https://github.com/solidusio/solidus/pull/6248
+* Addressbook: Add foreign key, dependent/inverse_of options by @mamhoff in https://github.com/solidusio/solidus/pull/6265
+* Replace `puts` in tasks and generators with Rails.logger or Logger.new by @mamhoff in https://github.com/solidusio/solidus/pull/6244
+
+## Solidus Admin
+
+* Fix typos by @jackhac in https://github.com/solidusio/solidus/pull/6207
+* Display the store's currency in the Admin Order Index Component by @magpieuk in https://github.com/solidusio/solidus/pull/5929
+* Fix flaky test errors using chrome 134 by @tvdeyen in https://github.com/solidusio/solidus/pull/6203
+* Make linters happy by @tvdeyen in https://github.com/solidusio/solidus/pull/6223
+* Add reverse charge fields to address by @fthobe in https://github.com/solidusio/solidus/pull/6168
+* Use Firefox for system specs by @mamhoff in https://github.com/solidusio/solidus/pull/6230
+* Fix install_lookbook step by @chaimann in https://github.com/solidusio/solidus/pull/6154
+* Fix ui/forms/input component for tag: :textarea by @chaimann in https://github.com/solidusio/solidus/pull/6174
+* [Admin] Fix Unclosed form_tag in table component by @swamp09 in https://github.com/solidusio/solidus/pull/6172
+* Fix flaky specs by @mamhoff in https://github.com/solidusio/solidus/pull/6197
+* [Backend] Fix issue refunding uncompleted payments by @jtapia in https://github.com/solidusio/solidus/pull/6094
+* [Admin][UI] New select component by @chaimann in https://github.com/solidusio/solidus/pull/6190
+* Refactor `ui/forms/address` component by @chaimann in https://github.com/solidusio/solidus/pull/6191
+* Use semantic links to edit option types by @forkata in https://github.com/solidusio/solidus/pull/6201
+* Admin select component performance by @chaimann in https://github.com/solidusio/solidus/pull/6213
+* Refactor address form component (properly this time) by @chaimann in https://github.com/solidusio/solidus/pull/6225
+* [Admin][UI] Alert component by @chaimann in https://github.com/solidusio/solidus/pull/6226
+* [Admin] fix table sorting by @chaimann in https://github.com/solidusio/solidus/pull/6238
+* Update importmap-rails to v2 by @tvdeyen in https://github.com/solidusio/solidus/pull/6202
+
+## Solidus Backend
+
+* Add reverse charge status to stores by @fthobe in https://github.com/solidusio/solidus/pull/6136
+* Fix flaky test errors using chrome 134 by @tvdeyen in https://github.com/solidusio/solidus/pull/6203
+* Add reverse charge fields to address by @fthobe in https://github.com/solidusio/solidus/pull/6168
+* Fix flaky specs by @mamhoff in https://github.com/solidusio/solidus/pull/6197
+* [Backend] Fix issue refunding uncompleted payments by @jtapia in https://github.com/solidusio/solidus/pull/6094
+* Add 500ms delay before AJAX in Select2 by @mamhoff in https://github.com/solidusio/solidus/pull/6235
+
+## Solidus API
+
+* Add reverse charge status to stores by @fthobe in https://github.com/solidusio/solidus/pull/6136
+* Add reverse charge fields to address by @fthobe in https://github.com/solidusio/solidus/pull/6168
+* Refactor load_user_roles into current_user_roles helper by @mamhoff in https://github.com/solidusio/solidus/pull/6245
+* Refactor "current_api_user" into instacached helper by @mamhoff in https://github.com/solidusio/solidus/pull/6246
+
+## Solidus Promotions
+
+* Fix typos by @jackhac in https://github.com/solidusio/solidus/pull/6207
+* Fix flaky test errors using chrome 134 by @tvdeyen in https://github.com/solidusio/solidus/pull/6203
+* Replace `puts` in tasks and generators with Rails.logger or Logger.new by @mamhoff in https://github.com/solidusio/solidus/pull/6244
+* Fix flaky specs by @mamhoff in https://github.com/solidusio/solidus/pull/6197
+* Update importmap-rails to v2 by @tvdeyen in https://github.com/solidusio/solidus/pull/6202
+* [Promotions] Set Flickwerk patches in initializer by @tvdeyen in https://github.com/solidusio/solidus/pull/6161
+* Fix Rubocop offense by @mamhoff in https://github.com/solidusio/solidus/pull/6196
+* Use `human_attribute_name` for promo calculator labels by @mamhoff in https://github.com/solidusio/solidus/pull/6195
+* Promotions: Add a PercentWithCap calculator by @mamhoff in https://github.com/solidusio/solidus/pull/6200
+
+**Full Changelog**: https://github.com/solidusio/solidus/compare/v4.5.0...v4.6.0
+
+
+## Solidus v4.5.0 (2025-02-19)
+
+<!-- Please, don't edit manually. The content is automatically generated. -->
+
+## Solidus
+
+* Add not about sprockets manifest before running rails commands by @tvdeyen in https://github.com/solidusio/solidus/pull/6130
+
+## Solidus Core
+
+* Move Line Item Actions to solidus_legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5916
+* Remove rails binstubs from built gems by @tvdeyen in https://github.com/solidusio/solidus/pull/5917
+* [FIX] Remove spacing at top of OrderShipping#ship method by @adammathys in https://github.com/solidusio/solidus/pull/5954
+* Test app task: Allow passing in user class by @mamhoff in https://github.com/solidusio/solidus/pull/5956
+* Backend: Add missing error translation by @mamhoff in https://github.com/solidusio/solidus/pull/5979
+* Add show all results to en.yml by @fthobe in https://github.com/solidusio/solidus/pull/5988
+* Do not constantize Spree.user_class in UserClassHandle by @mamhoff in https://github.com/solidusio/solidus/pull/5999
+* Allow to set Rails deprecations behavior during tests by @tvdeyen in https://github.com/solidusio/solidus/pull/6000
+* Introducing product brand using taxon_brand_selector by @shahmayur001 in https://github.com/solidusio/solidus/pull/5989
+* Make state machine modules auto-loadable by @mamhoff in https://github.com/solidusio/solidus/pull/6056
+* Make Spree::Money autoloadable by @tvdeyen in https://github.com/solidusio/solidus/pull/6040
+* Tax Categories on Line Items respect updates to Variant and Product Tax Categories by @harmonymjb in https://github.com/solidusio/solidus/pull/6059
+* Unauthorized redirect handling config by @mamhoff in https://github.com/solidusio/solidus/pull/6051
+* Lint: Fix Money spec by @mamhoff in https://github.com/solidusio/solidus/pull/6068
+* Fix preferences serialization compatibility with Rails version check by @swamp09 in https://github.com/solidusio/solidus/pull/6083
+* Make Controller Helpers autoloadable by @mamhoff in https://github.com/solidusio/solidus/pull/6062
+* Move permission sets back to app/ by @mamhoff in https://github.com/solidusio/solidus/pull/6090
+* Allows Rails 8, updates sqlite in Gemfile to match what CI runs by @rjacoby in https://github.com/solidusio/solidus/pull/6091
+* Remove Spree::UserAddress#archived flag by @mamhoff in https://github.com/solidusio/solidus/pull/3852
+* Add permalink history for taxon on friendly-id by @shahmayur001 in https://github.com/solidusio/solidus/pull/6100
+* Refactor Line Item Total Calculations by @jarednorman in https://github.com/solidusio/solidus/pull/6080
+* Fix DummyApp Generator by @tvdeyen in https://github.com/solidusio/solidus/pull/6121
+* Rails 8: Include manifest.js in install generator by @mamhoff in https://github.com/solidusio/solidus/pull/6122
+* Add Ruby 3.4 support by @tvdeyen in https://github.com/solidusio/solidus/pull/6117
+* Add primary Taxon to products (#6047) by @fthobe in https://github.com/solidusio/solidus/pull/6109
+* Admin promotion categories add/edit by @chaimann in https://github.com/solidusio/solidus/pull/6101
+* Move line_item_comparison_hooks config to Spree::Config by @mamhoff in https://github.com/solidusio/solidus/pull/6050
+* Admin and User Metadata for transactional ressources and users (#5897) by @fthobe in https://github.com/solidusio/solidus/pull/6118
+* Revert "Merge pull request #6122 from mamhoff/create-manifest-js-in-g… by @mamhoff in https://github.com/solidusio/solidus/pull/6124
+* Fix migration typo (missing keyword `foreign_key`) by @chaimann in https://github.com/solidusio/solidus/pull/6126
+* Use Flickwerk for loading patches in solidus_promotions and solidus_legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/6049
+* Added GTIN and Condition to variant for structured data use by @rahulsingh321 in https://github.com/solidusio/solidus/pull/6097
+
+## Solidus Admin
+
+* Remove rails binstubs from built gems by @tvdeyen in https://github.com/solidusio/solidus/pull/5917
+* Unauthorized redirect handling config by @mamhoff in https://github.com/solidusio/solidus/pull/6051
+* Allows Rails 8, updates sqlite in Gemfile to match what CI runs by @rjacoby in https://github.com/solidusio/solidus/pull/6091
+* Admin promotion categories add/edit by @chaimann in https://github.com/solidusio/solidus/pull/6101
+* Added GTIN and Condition to variant for structured data use by @rahulsingh321 in https://github.com/solidusio/solidus/pull/6097
+* Fix component translation scopes by @mamhoff in https://github.com/solidusio/solidus/pull/5927
+* Feat(Admin): Dynamic routing proxies by @mamhoff in https://github.com/solidusio/solidus/pull/5933
+* test: Wait for modal to open before testing its content by @tvdeyen in https://github.com/solidusio/solidus/pull/5993
+* [specs] Wait for modal before testing its content by @MadelineCollier in https://github.com/solidusio/solidus/pull/5998
+* Use Order#email to show the order's email in new admin by @softr8 in https://github.com/solidusio/solidus/pull/5596
+* [Admin][Users]Add new admin store_credits show page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5978
+* [Admin][Products] Add product properties create/edit flow to admin by @MadelineCollier in https://github.com/solidusio/solidus/pull/6011
+* tests: Give even more dialogs more time to open in tests by @tvdeyen in https://github.com/solidusio/solidus/pull/6017
+* [Admin][Users] Add new admin store credits edit_amount flow by @MadelineCollier in https://github.com/solidusio/solidus/pull/6031
+* [Admin][Users] Add new admin store credits edit_memo flow by @MadelineCollier in https://github.com/solidusio/solidus/pull/6033
+* [Admin][Users] Add new admin store credits invalidate flow  by @MadelineCollier in https://github.com/solidusio/solidus/pull/6034
+* Use at least solidus_support 0.12.0 by @tvdeyen in https://github.com/solidusio/solidus/pull/6037
+* [Admin][Users] Add new admin store credits create flow by @MadelineCollier in https://github.com/solidusio/solidus/pull/6036
+* [Admin] Add Prettier config by @tvdeyen in https://github.com/solidusio/solidus/pull/6043
+* Pin view_component to < 3.21.0 by @tvdeyen in https://github.com/solidusio/solidus/pull/6048
+* Fix unsafe html view component, allow ViewComponent 3.21+ by @mamhoff in https://github.com/solidusio/solidus/pull/6055
+* [Admin] Use Rails.application.mounted_helpers in base component by @mamhoff in https://github.com/solidusio/solidus/pull/6039
+* [Admin] Open edit and new forms in dialog with turbo frame by @tvdeyen in https://github.com/solidusio/solidus/pull/6046
+* Fix missing options in select tags by @chaimann in https://github.com/solidusio/solidus/pull/6120
+* Remove Display Order from side menu by @chaimann in https://github.com/solidusio/solidus/pull/6119
+* [Admin] Fix tailwindcss-rails Version to v3 for Solidus Admin Compatibility by @swamp09 in https://github.com/solidusio/solidus/pull/6135
+* [Admin] Allow bulk delete resources by @chaimann in https://github.com/solidusio/solidus/pull/6134
+
+## Solidus Backend
+
+* Remove rails binstubs from built gems by @tvdeyen in https://github.com/solidusio/solidus/pull/5917
+* Backend: Add missing error translation by @mamhoff in https://github.com/solidusio/solidus/pull/5979
+* Unauthorized redirect handling config by @mamhoff in https://github.com/solidusio/solidus/pull/6051
+* Add primary Taxon to products (#6047) by @fthobe in https://github.com/solidusio/solidus/pull/6109
+* Added GTIN and Condition to variant for structured data use by @rahulsingh321 in https://github.com/solidusio/solidus/pull/6097
+* Fix field container identifier on admin stock location by @forkata in https://github.com/solidusio/solidus/pull/6107
+
+## Solidus API
+
+* Remove rails binstubs from built gems by @tvdeyen in https://github.com/solidusio/solidus/pull/5917
+* Allows Rails 8, updates sqlite in Gemfile to match what CI runs by @rjacoby in https://github.com/solidusio/solidus/pull/6091
+* Remove Spree::UserAddress#archived flag by @mamhoff in https://github.com/solidusio/solidus/pull/3852
+* Add primary Taxon to products (#6047) by @fthobe in https://github.com/solidusio/solidus/pull/6109
+* Admin and User Metadata for transactional ressources and users (#5897) by @fthobe in https://github.com/solidusio/solidus/pull/6118
+* Added GTIN and Condition to variant for structured data use by @rahulsingh321 in https://github.com/solidusio/solidus/pull/6097
+
+## Solidus Sample
+
+* Introducing product brand using taxon_brand_selector by @shahmayur001 in https://github.com/solidusio/solidus/pull/5989
+* Added GTIN and Condition to variant for structured data use by @rahulsingh321 in https://github.com/solidusio/solidus/pull/6097
+
+## Solidus Promotions
+
+* Add Ruby 3.4 support by @tvdeyen in https://github.com/solidusio/solidus/pull/6117
+* Admin promotion categories add/edit by @chaimann in https://github.com/solidusio/solidus/pull/6101
+* Move line_item_comparison_hooks config to Spree::Config by @mamhoff in https://github.com/solidusio/solidus/pull/6050
+* Use Flickwerk for loading patches in solidus_promotions and solidus_legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/6049
+* Fix component translation scopes by @mamhoff in https://github.com/solidusio/solidus/pull/5927
+* test: Wait for modal to open before testing its content by @tvdeyen in https://github.com/solidusio/solidus/pull/5993
+* Use at least solidus_support 0.12.0 by @tvdeyen in https://github.com/solidusio/solidus/pull/6037
+* [Admin] Allow bulk delete resources by @chaimann in https://github.com/solidusio/solidus/pull/6134
+* Better promotion menus by @mamhoff in https://github.com/solidusio/solidus/pull/5934
+* Fix admin promotions controller by @mamhoff in https://github.com/solidusio/solidus/pull/5943
+* [FIX] A few small tweaks for the new promotion admin by @adammathys in https://github.com/solidusio/solidus/pull/5953
+* Fix(promotions): Validate benefits on save by @mamhoff in https://github.com/solidusio/solidus/pull/5981
+* Fix(Promotions): Return 200 on benefits#edit by @mamhoff in https://github.com/solidusio/solidus/pull/5997
+* Add can apply to promotions by @mamhoff in https://github.com/solidusio/solidus/pull/6013
+* Fixed wording, typos, license notice & linked to migration guide by @fthobe in https://github.com/solidusio/solidus/pull/6106
+
+**Full Changelog**: https://github.com/solidusio/solidus/compare/v4.4.0...v4.5.0
+
+
+## Solidus v4.4.0 (2024-11-12)
+
+<!-- Please, don't edit manually. The content is automatically generated. -->
+
+## Solidus
+
+* Fix link to the community guidelines document by @rainerdema in https://github.com/solidusio/solidus/pull/5656
+* Add Admin Tailwind build when generating sandbox  by @spaghetticode in https://github.com/solidusio/solidus/pull/5636
+* Add Legacy promotions gem by @mamhoff in https://github.com/solidusio/solidus/pull/5678
+* Solidus gem: Require `solidus_legacy_promotions` by @mamhoff in https://github.com/solidusio/solidus/pull/5726
+* Add missing `the` to README by @DemoYeti in https://github.com/solidusio/solidus/pull/5847
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+
+## Solidus Core
+
+* Add Admin Tailwind build when generating sandbox  by @spaghetticode in https://github.com/solidusio/solidus/pull/5636
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+* Add support for Sprockets v4 to the DummyApp by @kennyadsl in https://github.com/solidusio/solidus/pull/3379
+* [admin] Order adjustments by @elia in https://github.com/solidusio/solidus/pull/5513
+* Disable admin preview for extensions test apps by @tvdeyen in https://github.com/solidusio/solidus/pull/5600
+* Bundle solidus_admin >= 0.2 in Solidus installer by @spaghetticode in https://github.com/solidusio/solidus/pull/5607
+* Fix minor sandbox generation issues by @spaghetticode in https://github.com/solidusio/solidus/pull/5618
+* Remove call to private method `#update_cancellations` from `OrderUpdater#recalculate_adjustments` by @mamhoff in https://github.com/solidusio/solidus/pull/5633
+* Explicitly require URI in app configuration by @tvdeyen in https://github.com/solidusio/solidus/pull/5644
+* Fix down migration for promotion_orders promotions foreign key by @rabbitbike in https://github.com/solidusio/solidus/pull/5642
+* Nested Class Set extension, Promotion configuration object by @mamhoff in https://github.com/solidusio/solidus/pull/5658
+* Configurable promotion adjustment sources by @mamhoff in https://github.com/solidusio/solidus/pull/5665
+* Promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5635
+* Remove promotion from cancellations spec by @mamhoff in https://github.com/solidusio/solidus/pull/5639
+* Introduce a null promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5667
+* Make shared examples and DummyAbility require-able from outside of core by @mamhoff in https://github.com/solidusio/solidus/pull/5640
+* Deprecate Spree::Adjustment#recalculate by @mamhoff in https://github.com/solidusio/solidus/pull/5632
+* Improve test coverage for Spree::Adjustment to 100% by @mamhoff in https://github.com/solidusio/solidus/pull/5672
+* Push spec coverage for Spree::Order to 100% by @mamhoff in https://github.com/solidusio/solidus/pull/5673
+* Fix specs failing after Money 6.18.0 release by @spaghetticode in https://github.com/solidusio/solidus/pull/5680
+* Add extension point: Promotion finder by @mamhoff in https://github.com/solidusio/solidus/pull/5677
+* [Admin] Create new Tax Categories by @spaghetticode in https://github.com/solidusio/solidus/pull/5674
+* Make API independent of promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5686
+* Move promotion backend controllers and views to legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5685
+* Fix flaky admin stock items spec by @mamhoff in https://github.com/solidusio/solidus/pull/5701
+* Let promotion handler decide whether it can add a coupon to an order by @mamhoff in https://github.com/solidusio/solidus/pull/5684
+* Add `shipping_promotion_handler_class` attribute to null promo config by @mamhoff in https://github.com/solidusio/solidus/pull/5729
+* Fix case statement in database config template by @nvandoorn in https://github.com/solidusio/solidus/pull/5736
+* Promotion advertiser by @mamhoff in https://github.com/solidusio/solidus/pull/5739
+* Configure promotions via a configuration instance by @mamhoff in https://github.com/solidusio/solidus/pull/5738
+* fix(StoreCredit): Add display_number method by @tvdeyen in https://github.com/solidusio/solidus/pull/5741
+* [Admin] adding new shipping category by @loicginoux in https://github.com/solidusio/solidus/pull/5718
+* Rename Spree::Config.promotions.promotion_adjuster_class by @mamhoff in https://github.com/solidusio/solidus/pull/5752
+* Move shipping promotion handling to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5753
+* Create Spree::SimpleOrderContents by @mamhoff in https://github.com/solidusio/solidus/pull/5755
+* Clear order promotions in Omnes event by @mamhoff in https://github.com/solidusio/solidus/pull/5754
+* Add missing methods to null promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5756
+* Re-add translation for `match_choices` by @mamhoff in https://github.com/solidusio/solidus/pull/5765
+* Deprecated Configurable Class: Allow class methods by @mamhoff in https://github.com/solidusio/solidus/pull/5762
+* Move legacy integration specs by @mamhoff in https://github.com/solidusio/solidus/pull/5773
+* Rename PromotionConfiguration to LegacyPromotionConfiguration by @mamhoff in https://github.com/solidusio/solidus/pull/5769
+* NullPromotionHandler: return self from #apply by @mamhoff in https://github.com/solidusio/solidus/pull/5767
+* Disallow sprockets-rails 3.5.0 by @mamhoff in https://github.com/solidusio/solidus/pull/5778
+* Use Null Promotion Configuration in core by @mamhoff in https://github.com/solidusio/solidus/pull/5744
+* App configuration: Use SimpleOrderContents by default by @mamhoff in https://github.com/solidusio/solidus/pull/5775
+* Move promotion code batch services by @mamhoff in https://github.com/solidusio/solidus/pull/5787
+* Move Legacy Promotions Service Objects to `solidus_legacy_promotions` by @mamhoff in https://github.com/solidusio/solidus/pull/5786
+* Allow Psych 5 by @tvdeyen in https://github.com/solidusio/solidus/pull/5788
+* Require legacy promotion configuration in legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5796
+* Extract Legacy Promotion System: Move ActiveRecord Models and Factories by @mamhoff in https://github.com/solidusio/solidus/pull/5634
+* Move adjustment promotion code id to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5800
+* Remove spree_orders_promotions from core migration by @mamhoff in https://github.com/solidusio/solidus/pull/5803
+* Lock solidus_core.gemspec to ransack '< 4.2' by @MadelineCollier in https://github.com/solidusio/solidus/pull/5812
+* Use new extension point in order updater spec by @mamhoff in https://github.com/solidusio/solidus/pull/5814
+* Raise on deprecation when `SOLIDUS_RAISE_DEPRECATIONS` set by @forkata in https://github.com/solidusio/solidus/pull/5813
+* Destroy wallet payment source on source destroy by @tvdeyen in https://github.com/solidusio/solidus/pull/5836
+* Move eligible column to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5802
+* [Admin] Add new migrations and validations in `core` to support new `admin` `Spree::Role` interface  by @MadelineCollier in https://github.com/solidusio/solidus/pull/5833
+* Decorate Default Return Refund Amount Calculator in LegacyPromotions by @mamhoff in https://github.com/solidusio/solidus/pull/5845
+* [Admin] Allow assignment of permission sets when creating/editing admin roles by @MadelineCollier in https://github.com/solidusio/solidus/pull/5846
+* [Admin] Display `last_sign_in_at` in users admin, change default scope by @MadelineCollier in https://github.com/solidusio/solidus/pull/5850
+* Add Ransack 4.2 support by @tvdeyen in https://github.com/solidusio/solidus/pull/5853
+* Spree::Variant.in_stock: Only show distinct variants by @mamhoff in https://github.com/solidusio/solidus/pull/5860
+* [Admin] New admin user edit page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5856
+* Performance: Remove includes from Spree::Variant#options_text by @mamhoff in https://github.com/solidusio/solidus/pull/5867
+* Add template variants scope by @mamhoff in https://github.com/solidusio/solidus/pull/5866
+* Allow Rails 7.2 by @tvdeyen in https://github.com/solidusio/solidus/pull/5843
+* Deprecate and remove dashboard code by @nvandoorn in https://github.com/solidusio/solidus/pull/5883
+* Legacy Promotions: Move ransackable promo associations from core by @mamhoff in https://github.com/solidusio/solidus/pull/5893
+* FixUpdate return_reasons.rb by @fthobe in https://github.com/solidusio/solidus/pull/5901
+
+## Solidus Admin
+
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+* [admin] Order adjustments by @elia in https://github.com/solidusio/solidus/pull/5513
+* Fix minor sandbox generation issues by @spaghetticode in https://github.com/solidusio/solidus/pull/5618
+* [Admin] Create new Tax Categories by @spaghetticode in https://github.com/solidusio/solidus/pull/5674
+* Move promotion backend controllers and views to legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5685
+* Fix flaky admin stock items spec by @mamhoff in https://github.com/solidusio/solidus/pull/5701
+* [Admin] adding new shipping category by @loicginoux in https://github.com/solidusio/solidus/pull/5718
+* Move adjustment promotion code id to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5800
+* Lock solidus_core.gemspec to ransack '< 4.2' by @MadelineCollier in https://github.com/solidusio/solidus/pull/5812
+* Move eligible column to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5802
+* [Admin] Allow assignment of permission sets when creating/editing admin roles by @MadelineCollier in https://github.com/solidusio/solidus/pull/5846
+* [Admin] Display `last_sign_in_at` in users admin, change default scope by @MadelineCollier in https://github.com/solidusio/solidus/pull/5850
+* Add Ransack 4.2 support by @tvdeyen in https://github.com/solidusio/solidus/pull/5853
+* [Admin] New admin user edit page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5856
+* Fix property destroy - use destroy instead of discard by @tonxyx in https://github.com/solidusio/solidus/pull/5577
+* [Admin] Introduce base Index Component by @rainerdema in https://github.com/solidusio/solidus/pull/5561
+* Restore coverage tracking by @elia in https://github.com/solidusio/solidus/pull/5580
+* [admin] Fix mock components reported location by @elia in https://github.com/solidusio/solidus/pull/5589
+* [admin] Require ViewComponent v3.9 with inheritable translations by @elia in https://github.com/solidusio/solidus/pull/5590
+* [admin] Remove previews for non-UI components that didn't add much value by @elia in https://github.com/solidusio/solidus/pull/5592
+* [admin] Consistently use `label` for providing text for table scopes, batch actions and filters by @elia in https://github.com/solidusio/solidus/pull/5593
+* [admin] Reduce the size of the panels title by @elia in https://github.com/solidusio/solidus/pull/5594
+* fix(admin stock items spec): Wait for tab to be active by @tvdeyen in https://github.com/solidusio/solidus/pull/5601
+* [admin] Document SolidusAdmin intended usage and how to contribute by @elia in https://github.com/solidusio/solidus/pull/5595
+* [ADMIN] Fix flash messages coloring by @spaghetticode in https://github.com/solidusio/solidus/pull/5681
+* Convert existing Admin modals to Turbo frames by @spaghetticode in https://github.com/solidusio/solidus/pull/5688
+* [admin] fix docs links in README by @ccarruitero in https://github.com/solidusio/solidus/pull/5703
+* Make SolidusAdmin's testing support code require-able by @mamhoff in https://github.com/solidusio/solidus/pull/5700
+* [Admin] Add the ability to configure batch action confirmation by @forkata in https://github.com/solidusio/solidus/pull/5702
+* Show the page action for creating a new shipping method by @forkata in https://github.com/solidusio/solidus/pull/5719
+* [Admin] Create new Refund Reasons by @spaghetticode in https://github.com/solidusio/solidus/pull/5696
+* [Admin] Add Update Tax Category feature by @spaghetticode in https://github.com/solidusio/solidus/pull/5697
+* Move solidus admin promotion to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5724
+* Show "Unavailable" status for products with a future `Available On` date by @forkata in https://github.com/solidusio/solidus/pull/5734
+* Docker development environment improvements by @nvandoorn in https://github.com/solidusio/solidus/pull/5735
+* Create custom orders index component for solidus_legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5779
+* Use configurable adjustment promotion source types in Thumbnail.for by @mamhoff in https://github.com/solidusio/solidus/pull/5781
+* Fix flaky spec with sleep by @mamhoff in https://github.com/solidusio/solidus/pull/5783
+* Components registry safe reload by @mamhoff in https://github.com/solidusio/solidus/pull/5780
+* SolidusAdmin: Components per Adjustment Source by @mamhoff in https://github.com/solidusio/solidus/pull/5789
+* Support Tailwind CSS in core dummy app by @mamhoff in https://github.com/solidusio/solidus/pull/5798
+* Admin adjustable components by @mamhoff in https://github.com/solidusio/solidus/pull/5791
+* [Admin] Create new Adjustment Reasons by @MadelineCollier in https://github.com/solidusio/solidus/pull/5811
+* Add before action to handle option type params by @nvandoorn in https://github.com/solidusio/solidus/pull/5816
+* [Admin] Adjustment Reasons edit/update by @MadelineCollier in https://github.com/solidusio/solidus/pull/5815
+* [Admin] Shipping Categories edit/update by @MadelineCollier in https://github.com/solidusio/solidus/pull/5817
+* [Admin] Refund Reasons edit/update by @MadelineCollier in https://github.com/solidusio/solidus/pull/5819
+* [Admin] Create new Store Credit Reasons by @MadelineCollier in https://github.com/solidusio/solidus/pull/5820
+* [Admin] Store Credit Reasons edit/update & New request specs to appease Codecov by @MadelineCollier in https://github.com/solidusio/solidus/pull/5821
+* [Admin] Add request spec for Refund Reasons & other minor edits by @MadelineCollier in https://github.com/solidusio/solidus/pull/5822
+* Remove unused load methods & Add more request spec coverage by @MadelineCollier in https://github.com/solidusio/solidus/pull/5825
+* [Admin] Introduce RMA reasons creation & modification capability  by @MadelineCollier in https://github.com/solidusio/solidus/pull/5829
+* [Admin] Introduce role creation by @MadelineCollier in https://github.com/solidusio/solidus/pull/5831
+* [SolidusAdmin] Remove inaccessible details/summary element by @mamhoff in https://github.com/solidusio/solidus/pull/5835
+* [Admin] Edit/Update roles via new admin UI by @MadelineCollier in https://github.com/solidusio/solidus/pull/5828
+* Standardize admin controller setup methods by @MadelineCollier in https://github.com/solidusio/solidus/pull/5842
+* [Admin] Update Spree::Role admin UI with descriptions & required names by @MadelineCollier in https://github.com/solidusio/solidus/pull/5844
+* [Admin] Add new users admin addresses page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5865
+* [Admin] Add new users admin order history page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5869
+* [Admin] Handle states_required? in admin address component by @MadelineCollier in https://github.com/solidusio/solidus/pull/5871
+* Add filtering by store to orders index component by @forkata in https://github.com/solidusio/solidus/pull/5870
+* [Admin] Add new users admin items page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5874
+* Update Tailwind executable call for v3.0 by @forkata in https://github.com/solidusio/solidus/pull/5877
+* Admin installer fixes by @tvdeyen in https://github.com/solidusio/solidus/pull/5880
+* [Admin] Add new users admin store credits page by @MadelineCollier in https://github.com/solidusio/solidus/pull/5887
+* Exclude 'remixicon.symbol.svg' from asset pipeline by @stewart in https://github.com/solidusio/solidus/pull/5878
+
+## Solidus Backend
+
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+* Nested Class Set extension, Promotion configuration object by @mamhoff in https://github.com/solidusio/solidus/pull/5658
+* Promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5635
+* Move promotion backend controllers and views to legacy_promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5685
+* App configuration: Use SimpleOrderContents by default by @mamhoff in https://github.com/solidusio/solidus/pull/5775
+* Move eligible column to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5802
+* Allow Rails 7.2 by @tvdeyen in https://github.com/solidusio/solidus/pull/5843
+* Deprecate and remove dashboard code by @nvandoorn in https://github.com/solidusio/solidus/pull/5883
+* Docker development environment improvements by @nvandoorn in https://github.com/solidusio/solidus/pull/5735
+* Fix the check on select2 translations asset existence by @elia in https://github.com/solidusio/solidus/pull/5582
+* Use `spree` routing proxy in theme selection partial by @mamhoff in https://github.com/solidusio/solidus/pull/5599
+* Theme selection for Solidus Admin: Use spree routing proxy by @mamhoff in https://github.com/solidusio/solidus/pull/5604
+* Menu item should not match url if match_path is set by @sascha-karnatz in https://github.com/solidusio/solidus/pull/5643
+* Fix search by variant on stock items by @nvandoorn in https://github.com/solidusio/solidus/pull/5660
+* Use routing proxy in locale selection by @mamhoff in https://github.com/solidusio/solidus/pull/5611
+* Fix JS locale data for release of Money 6.19 by @mamhoff in https://github.com/solidusio/solidus/pull/5683
+* Do not show theme selector if only one theme is configured by @tvdeyen in https://github.com/solidusio/solidus/pull/5705
+* Move promotion admin assets by @mamhoff in https://github.com/solidusio/solidus/pull/5699
+* Add routes proxy to locale selection path helper by @mamhoff in https://github.com/solidusio/solidus/pull/5716
+* Fix flaky admin customer return spec by @mamhoff in https://github.com/solidusio/solidus/pull/5757
+* Fix deprecation warning from Ransack by @mamhoff in https://github.com/solidusio/solidus/pull/5764
+* Backend: Make order search fields configurable by @mamhoff in https://github.com/solidusio/solidus/pull/5776
+* Call empty only on incomplete orders by @nvandoorn in https://github.com/solidusio/solidus/pull/5827
+* Format date with #to_fs by @alepore in https://github.com/solidusio/solidus/pull/5863
+* Variant Autocomplete: Allow passing select2 options by @mamhoff in https://github.com/solidusio/solidus/pull/5861
+* Render variant shipping category by @nvandoorn in https://github.com/solidusio/solidus/pull/5882
+
+## Solidus API
+
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+* Promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5635
+* Add extension point: Promotion finder by @mamhoff in https://github.com/solidusio/solidus/pull/5677
+* Make API independent of promotion configuration by @mamhoff in https://github.com/solidusio/solidus/pull/5686
+* Use Null Promotion Configuration in core by @mamhoff in https://github.com/solidusio/solidus/pull/5744
+* App configuration: Use SimpleOrderContents by default by @mamhoff in https://github.com/solidusio/solidus/pull/5775
+* Move adjustment promotion code id to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5800
+* Move eligible column to legacy promotions by @mamhoff in https://github.com/solidusio/solidus/pull/5802
+* Call empty only on incomplete orders by @nvandoorn in https://github.com/solidusio/solidus/pull/5827
+* SolidusLegacyPromotion extraction: Move and fix remaining API specs by @mamhoff in https://github.com/solidusio/solidus/pull/5694
+* Do not initialize promotions object on startup by @mamhoff in https://github.com/solidusio/solidus/pull/5728
+* Fix failing API promotions specs by @MadelineCollier in https://github.com/solidusio/solidus/pull/5859
+
+## Solidus Sample
+
+* Bump minimum Ruby version to 3.1 by @tvdeyen in https://github.com/solidusio/solidus/pull/5891
+* Add missing option types to product sample data by @spaghetticode in https://github.com/solidusio/solidus/pull/5638
+
+**Full Changelog**: https://github.com/solidusio/solidus/compare/v4.3.0...v4.4.0
+
+
 ## Solidus v4.3.3 (2024-03-11)
 
 <!-- Please, don't edit manually. The content is automatically generated. -->

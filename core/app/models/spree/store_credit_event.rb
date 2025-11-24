@@ -3,12 +3,13 @@
 module Spree
   class StoreCreditEvent < Spree::Base
     include Spree::SoftDeletable
+    include Metadata
 
     belongs_to :store_credit, optional: true
     belongs_to :originator, polymorphic: true, optional: true
     belongs_to :store_credit_reason, class_name: 'Spree::StoreCreditReason', inverse_of: :store_credit_events, optional: true
 
-    validates_presence_of :store_credit_reason, if: :action_requires_reason?
+    validates :store_credit_reason, presence: { if: :action_requires_reason? }
 
     NON_EXPOSED_ACTIONS = [Spree::StoreCredit::ELIGIBLE_ACTION, Spree::StoreCredit::AUTHORIZE_ACTION]
 
@@ -33,15 +34,15 @@ module Spree
     end
 
     def display_amount
-      Spree::Money.new(amount, { currency: currency })
+      Spree::Money.new(amount, { currency: })
     end
 
     def display_user_total_amount
-      Spree::Money.new(user_total_amount, { currency: currency })
+      Spree::Money.new(user_total_amount, { currency: })
     end
 
     def display_remaining_amount
-      Spree::Money.new(amount_remaining, { currency: currency })
+      Spree::Money.new(amount_remaining, { currency: })
     end
 
     def display_event_date

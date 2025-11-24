@@ -5,14 +5,15 @@ module Spree
   # method has been selected to deliver the shipment.
   #
   class ShippingRate < Spree::Base
-    belongs_to :shipment, class_name: 'Spree::Shipment', touch: true, optional: true
+    belongs_to :shipment, class_name: 'Spree::Shipment', touch: true, optional: true, inverse_of: :shipping_rates
     belongs_to :shipping_method, -> { with_discarded }, class_name: 'Spree::ShippingMethod', inverse_of: :shipping_rates, optional: true
 
     has_many :taxes,
              class_name: "Spree::ShippingRateTax",
              foreign_key: "shipping_rate_id",
              inverse_of: :shipping_rate,
-             dependent: :destroy
+             dependent: :destroy,
+             autosave: true
 
     delegate :order, :currency, to: :shipment
     delegate :name, :tax_category, :tax_category_id, to: :shipping_method
@@ -31,7 +32,7 @@ module Spree
       tax_explanations = taxes.map(&:label).join(tax_label_separator)
 
       I18n.t 'spree.shipping_rate.display_price.display_price_with_explanations',
-             price: price,
+             price:,
              explanations: tax_explanations
     end
     alias_method :display_cost, :display_price

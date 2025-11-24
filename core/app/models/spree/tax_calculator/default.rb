@@ -46,7 +46,7 @@ module Spree
           Spree::Tax::ItemTax.new(
             label: rate.adjustment_label(amount),
             tax_rate: rate,
-            amount: amount,
+            amount:,
             included_in_price: rate.included_in_price
           )
         end
@@ -89,7 +89,7 @@ module Spree
             item_id: item.id,
             label: rate.adjustment_label(amount),
             tax_rate: rate,
-            amount: amount,
+            amount:,
             included_in_price: rate.included_in_price
           )
         end
@@ -99,7 +99,7 @@ module Spree
       # @return [Array<Spree::TaxRate>] rates that apply to an order
       def rates_for_order
         tax_category_ids = Set[
-          *@order.line_items.map(&:tax_category_id),
+          *@order.line_items.map(&:variant_tax_category_id),
           *@order.shipments.map(&:tax_category_id)
         ]
         rates = Spree::TaxRate.active.order_level.for_address(@order.tax_address)

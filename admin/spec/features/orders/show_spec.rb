@@ -42,13 +42,15 @@ describe "Order", :js, type: :feature do
 
   it "allows setting and changing the addresses" do
     create(:order, number: "R123456789", total: 19.99)
+    create(:state, name: "Ontario", country: create(:country, iso: "CA"))
+    create(:state, name: "Bahia", country: create(:country, iso: "BR"))
 
     visit "/admin/orders/R123456789/edit"
 
     expect(page).to have_content("Order R123456789")
     open_customer_menu
     click_on "Edit billing address"
-    expect(page).to have_css("dialog", wait: 30)
+    expect(page).to have_css("dialog", wait: 5)
 
     within("dialog") do
       fill_in "Name", with: "John Doe"
@@ -57,8 +59,8 @@ describe "Order", :js, type: :feature do
       fill_in "City", with: "John Doe City"
       fill_in "Zip Code", with: "12345"
       fill_in "Phone", with: "555-555-5555"
-      select "United States", from: "order[bill_address_attributes][country_id]"
-      select "Alabama", from: "order[bill_address_attributes][state_id]"
+      solidus_select "Canada", from: "Country"
+      solidus_select "Ontario", from: "State"
       click_on "Save"
     end
 
@@ -68,13 +70,13 @@ describe "Order", :js, type: :feature do
     expect(page).to have_content("Apartment 2")
     expect(page).to have_content("John Doe City")
     expect(page).to have_content("12345")
-    expect(page).to have_content("United States")
-    expect(page).to have_content("Alabama")
+    expect(page).to have_content("Canada")
+    expect(page).to have_content("Ontario")
     expect(page).to have_content("555-555-5555")
 
     open_customer_menu
     click_on "Edit shipping address"
-    expect(page).to have_css("dialog", wait: 30)
+    expect(page).to have_css("dialog", wait: 5)
 
     within("dialog") do
       fill_in "Name", with: "Jane Doe"
@@ -83,8 +85,8 @@ describe "Order", :js, type: :feature do
       fill_in "City", with: "Jane Doe City"
       fill_in "Zip Code", with: "54321"
       fill_in "Phone", with: "555-555-5555"
-      select "United States", from: "order[ship_address_attributes][country_id]"
-      select "Alabama", from: "order[ship_address_attributes][state_id]"
+      solidus_select "Brazil", from: "Country"
+      solidus_select "Bahia", from: "State"
       click_on "Save"
     end
 
@@ -94,8 +96,8 @@ describe "Order", :js, type: :feature do
     expect(page).to have_content("Apartment 3")
     expect(page).to have_content("Jane Doe City")
     expect(page).to have_content("54321")
-    expect(page).to have_content("United States")
-    expect(page).to have_content("Alabama")
+    expect(page).to have_content("Brazil")
+    expect(page).to have_content("Bahia")
     expect(page).to have_content("555-555-5555")
   end
 
@@ -119,21 +121,48 @@ describe "Order", :js, type: :feature do
       expect(Spree::Order.last.line_items.count).to eq(0)
 
       find("[aria-selected]", text: "Just another product").click
-      expect(page).to have_content("Variant added to cart successfully", wait: 30)
+      expect(page).to have_content("Variant added to cart successfully", wait: 5)
 
       expect(Spree::Order.last.line_items.count).to eq(1)
       expect(Spree::Order.last.line_items.last.quantity).to eq(1)
 
       fill_in "line_item[quantity]", with: 4
-      expect(page).to have_content("Quantity updated successfully", wait: 30)
+      expect(page).to have_content("Quantity updated successfully", wait: 5)
 
       expect(Spree::Order.last.line_items.last.quantity).to eq(4)
 
       accept_confirm("Are you sure?") { click_on "Delete" }
-      expect(page).to have_content("Line item removed successfully", wait: 30)
+      expect(page).to have_content("Line item removed successfully", wait: 5)
 
       expect(Spree::Order.last.line_items.count).to eq(0)
       expect(page).to be_axe_clean
+    end
+  end
+
+  describe 'summary panel' do
+    shared_examples_for 'summary panel' do
+      let!(:order) { create(:order, number: "R123456789", total: 4.99, currency:) }
+      let(:currency) { 'USD' }
+
+      it 'displays order summary correctly' do
+        visit "/admin/orders/R123456789"
+
+        expect(page).to have_content("Summary")
+        expect(page).to have_content(/Subtotal\s#{Regexp.escape(order.display_item_total.to_s)}/)
+        expect(page).to have_content(/Taxes\s#{Regexp.escape(order.display_additional_tax_total.to_s)}/)
+        expect(page).to have_content(/Shipping\s#{Regexp.escape(order.display_shipment_total.to_s)}/)
+        expect(page).to have_content(/Add Promo Code\s#{Regexp.escape(order.display_promo_total.to_s)}/)
+        expect(page).to have_content(/Adjustments\s#{Regexp.escape(order.display_adjustment_total.to_s)}/)
+        expect(page).to have_content(/Total\s#{Regexp.escape(order.display_total.to_s)}/)
+      end
+    end
+
+    include_examples "summary panel"
+
+    context 'with different currency' do
+      include_examples "summary panel" do
+        let(:currency) { 'EUR' }
+      end
     end
   end
 

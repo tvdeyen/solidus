@@ -28,6 +28,10 @@ module Spree
     attr_writer :rebuild_vat_prices
     include Spree::DefaultPrice
 
+    # Consider that not all platforms digest structured data in the same way,
+    # you might have to modify the output on the frontend or in feeds accordingly.
+    enum :condition, { damaged: "damaged", new: "new", refurbished: "refurbished", used: "used" }, prefix: true
+
     belongs_to :product, -> { with_discarded }, touch: true, class_name: 'Spree::Product', inverse_of: :variants_including_master, optional: false
     belongs_to :tax_category, class_name: 'Spree::TaxCategory', optional: true
     belongs_to :shipping_category, class_name: "Spree::ShippingCategory", optional: true
@@ -35,7 +39,7 @@ module Spree
     delegate :name, :description, :slug, :available_on, :discontinue_on, :discontinued?,
              :meta_description, :meta_keywords,
              to: :product
-    delegate :tax_category, to: :product, prefix: true
+    delegate :tax_category, :tax_category_id, to: :product, prefix: true
     delegate :shipping_category, :shipping_category_id,
       to: :product, prefix: true
     delegate :tax_rates, to: :tax_category
@@ -70,7 +74,7 @@ module Spree
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates :price,      numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-    validates_uniqueness_of :sku, allow_blank: true, case_sensitive: true, conditions: -> { where(deleted_at: nil) }, if: :enforce_unique_sku?
+    validates :sku, uniqueness: { allow_blank: true, case_sensitive: true, conditions: -> { where(deleted_at: nil) }, if: :enforce_unique_sku? }
 
     after_create :create_stock_items
     after_create :set_master_out_of_stock, unless: :is_master?
@@ -79,6 +83,11 @@ module Spree
     after_touch :clear_in_stock_cache
 
     after_destroy :destroy_option_values_variants
+
+    scope :template_variants, -> do
+      left_joins(product: { option_types: :option_values }).where(is_master: true).where.not(spree_option_values: { id: nil }).reorder(nil).distinct
+    end
+    scope :non_template_variants, -> { where.not(id: template_variants) }
 
     # Returns variants that are in stock. When stock locations are provided as
     # a parameter, the scope is limited to variants that are in stock in the
@@ -145,6 +154,15 @@ module Spree
       super || product_tax_category
     end
 
+    # @return [Integer] the variant's tax category ID
+    #
+    # This returns the product's tax category ID if the tax category ID on the variant is nil. It looks
+    # like an association, but really is an override.
+    #
+    def tax_category_id
+      super || product_tax_category_id
+    end
+
     # @return [Spree::ShippingCategory] the variant's shipping category
     #
     # This returns the product's shipping category if the shipping category ID on the variant is nil. It looks
@@ -187,14 +205,14 @@ module Spree
 
     # @return [Boolean] true if this variant can be backordered
     def is_backorderable?
-      Spree::Stock::Quantifier.new(self).backorderable?
+      Spree::Config.stock.quantifier_class.new(self).backorderable?
     end
 
     # Creates a sentence out of the variant's (sorted) option values.
     #
     # @return [String] a sentence-ified string of option values.
     def options_text
-      values = option_values.includes(:option_type).sort_by do |option_value|
+      values = option_values.sort_by do |option_value|
         option_value.option_type.position
       end
 
@@ -327,7 +345,7 @@ module Spree
     #   check inventory in all available StockLocations.
     # @return [Boolean] true if the desired quantity can be supplied
     def can_supply?(quantity = 1, stock_location = nil)
-      Spree::Stock::Quantifier.new(self, stock_location).can_supply?(quantity)
+      Spree::Config.stock.quantifier_class.new(self, stock_location).can_supply?(quantity)
     end
 
     # Fetches the on-hand quantity of the variant.
@@ -337,7 +355,7 @@ module Spree
     #   check inventory in all available StockLocations.
     # @return [Fixnum] the number currently on-hand
     def total_on_hand(stock_location = nil)
-      Spree::Stock::Quantifier.new(self, stock_location).total_on_hand
+      Spree::Config.stock.quantifier_class.new(self, stock_location).total_on_hand
     end
 
     # Shortcut method to determine if inventory tracking is enabled for this

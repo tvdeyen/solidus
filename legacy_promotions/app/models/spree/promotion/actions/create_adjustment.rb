@@ -7,7 +7,7 @@ module Spree
         include Spree::CalculatedAdjustments
         include Spree::AdjustmentSource
 
-        has_many :adjustments, as: :source
+        has_many :adjustments, as: :source, dependent: :restrict_with_error
 
         delegate :eligible?, to: :promotion
 
@@ -30,8 +30,8 @@ module Spree
 
           amount = compute_amount(order)
           order.adjustments.create!(
-            amount: amount,
-            order: order,
+            amount:,
+            order:,
             source: self,
             promotion_code: options[:promotion_code],
             label: I18n.t('spree.adjustment_labels.order', promotion: Spree::Promotion.model_name.human, promotion_name: promotion.name)
@@ -43,7 +43,7 @@ module Spree
         # item_total and ship_total
         def compute_amount(calculable)
           amount = calculator.compute(calculable)
-          amount ||= BigDecimal(0)
+          amount ||= Spree::ZERO
           amount = amount.abs
           [(calculable.item_total + calculable.ship_total), amount].min * -1
         end

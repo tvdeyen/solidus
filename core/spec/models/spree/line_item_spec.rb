@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Spree::LineItem, type: :model do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
+  let(:target_shipment) { Spree::Shipment.new }
 
   context '#destroy' do
     it "fetches soft-deleted products" do
@@ -18,7 +19,8 @@ RSpec.describe Spree::LineItem, type: :model do
     end
 
     it "returns inventory when a line item is destroyed" do
-      expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
+      line_item.target_shipment = target_shipment
+      expect_any_instance_of(Spree::OrderInventory).to receive(:verify).with(target_shipment)
       line_item.destroy
     end
 
@@ -30,38 +32,32 @@ RSpec.describe Spree::LineItem, type: :model do
   context "#save" do
     context "target_shipment is provided" do
       it "verifies inventory" do
-        line_item.target_shipment = Spree::Shipment.new
-        expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
+        line_item.target_shipment = target_shipment
+        expect_any_instance_of(Spree::OrderInventory).to receive(:verify).with(target_shipment)
         line_item.save
       end
     end
   end
 
-  describe 'line item creation' do
+  describe '.new' do
     let(:variant) { create :variant }
 
-    subject(:line_item) { Spree::LineItem.new(variant: variant, order: order) }
+    subject(:line_item) { Spree::LineItem.new(variant:, order:) }
 
-    # Tests for https://github.com/spree/spree/issues/3391
-    context 'before validation' do
-      before { line_item.valid? }
+    it 'copies the variants price' do
+      expect(line_item.price).to eq(variant.price)
+    end
 
-      it 'copies the variants price' do
-        expect(line_item.price).to eq(variant.price)
-      end
+    it 'copies the variants cost_price' do
+      expect(line_item.cost_price).to eq(variant.cost_price)
+    end
 
-      it 'copies the variants cost_price' do
-        expect(line_item.cost_price).to eq(variant.cost_price)
-      end
+    it "copies the order's currency" do
+      expect(line_item.currency).to eq(order.currency)
+    end
 
-      it "copies the order's currency" do
-        expect(line_item.currency).to eq(order.currency)
-      end
-
-      # Test for https://github.com/spree/spree/issues/3481
-      it 'copies the variants tax category' do
-        expect(line_item.tax_category).to eq(line_item.variant.tax_category)
-      end
+    it 'copies the variants tax category' do
+      expect(line_item.tax_category).to eq(line_item.variant.tax_category)
     end
   end
 
@@ -97,9 +93,9 @@ RSpec.describe Spree::LineItem, type: :model do
 
   context 'setting a line item price' do
     let(:store) { create(:store, default: true) }
-    let(:order) { Spree::Order.new(currency: "RUB", store: store) }
+    let(:order) { Spree::Order.new(currency: "RUB", store:) }
     let(:variant) { Spree::Variant.new(product: Spree::Product.new) }
-    let(:line_item) { Spree::LineItem.new(order: order, variant: variant) }
+    let(:line_item) { Spree::LineItem.new(order:, variant:) }
 
     before { expect(variant).to receive(:price_for_options).at_least(:once).and_return(price) }
 
@@ -150,7 +146,7 @@ RSpec.describe Spree::LineItem, type: :model do
 
   describe 'money_price=' do
     let(:currency) { "USD" }
-    let(:new_price) { Spree::Money.new(99.00, currency: currency) }
+    let(:new_price) { Spree::Money.new(99.00, currency:) }
 
     it 'assigns a new price' do
       line_item.money_price = new_price
@@ -187,4 +183,6 @@ RSpec.describe Spree::LineItem, type: :model do
       expect(subject.currency).to eq("USD")
     end
   end
+
+  it_behaves_like "customer and admin metadata fields: storage and validation", :line_item
 end

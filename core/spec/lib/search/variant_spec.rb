@@ -13,7 +13,7 @@ module Spree
     end
 
     let(:product) { FactoryBot.create(:product, name: "My Special Product", slug: "my-special-product") }
-    let!(:variant) { FactoryBot.create(:variant, product: product, sku: "abc-123") }
+    let!(:variant) { FactoryBot.create(:variant, product:, sku: "abc-123") }
 
     context "blank string" do
       it { assert_found(nil, variant) }
@@ -25,6 +25,16 @@ module Spree
       it { assert_found("abc-1", variant) }
       it { assert_found("aBc-12", variant) }
       it { refute_found("bca", variant) }
+    end
+
+    context "with a template variant" do
+      let!(:option_type) { create(:option_type, option_values: [option_value]) }
+      let(:option_value) { build(:option_value) }
+      let(:product) { create(:product, option_types: [option_type], sku: "TEMPLATE") }
+      let(:variant) { create(:variant, product: product, sku: "NOT_TEMPLATE") }
+
+      it { refute_found("TEMPLATE", product.master) }
+      it { assert_found("NOT_TEMPLATE", variant) }
     end
 
     context "by product" do
@@ -106,8 +116,8 @@ module Spree
         end
       end
 
-      let!(:numeric_sku_variant) { FactoryBot.create(:variant, product: product, sku: "123") }
-      let!(:non_numeric_sku_variant) { FactoryBot.create(:variant, product: product, sku: "abc") }
+      let!(:numeric_sku_variant) { FactoryBot.create(:variant, product:, sku: "123") }
+      let!(:non_numeric_sku_variant) { FactoryBot.create(:variant, product:, sku: "abc") }
 
       it { expect(NumericSkuSearcher.new('123').results).to include numeric_sku_variant }
       it { expect(NumericSkuSearcher.new('abc').results).not_to include non_numeric_sku_variant }

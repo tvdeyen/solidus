@@ -13,8 +13,8 @@ class SolidusAdmin::StockItems::Index::Component < SolidusAdmin::UI::Pages::Inde
     solidus_admin.stock_items_path
   end
 
-  def row_url(stock_item)
-    solidus_admin.edit_stock_item_path(stock_item, _turbo_frame: :edit_stock_item_modal)
+  def edit_path(stock_item)
+    solidus_admin.edit_stock_item_path(stock_item, **search_filter_params)
   end
 
   def scopes
@@ -90,7 +90,9 @@ class SolidusAdmin::StockItems::Index::Component < SolidusAdmin::UI::Pages::Inde
     {
       header: :name,
       data: ->(stock_item) do
-        content_tag :div, stock_item.variant.name
+        link_to stock_item.variant.name, edit_path(stock_item),
+          data: { turbo_frame: :resource_form },
+          class: 'body-link'
       end
     }
   end
@@ -99,7 +101,9 @@ class SolidusAdmin::StockItems::Index::Component < SolidusAdmin::UI::Pages::Inde
     {
       header: :sku,
       data: ->(stock_item) do
-        content_tag :div, stock_item.variant.sku
+        link_to stock_item.variant.sku, edit_path(stock_item),
+          data: { turbo_frame: :resource_form },
+          class: 'body-link'
       end
     }
   end
@@ -138,7 +142,7 @@ class SolidusAdmin::StockItems::Index::Component < SolidusAdmin::UI::Pages::Inde
         count = stock_movement_counts[_1.id] || 0
 
         link_to(
-          "#{count} #{Spree::StockMovement.model_name.human(count: count).downcase}",
+          "#{count} #{Spree::StockMovement.model_name.human(count:).downcase}",
           spree.admin_stock_location_stock_movements_path(
             _1.stock_location.id,
             q: { variant_sku_eq: _1.variant.sku },
@@ -168,6 +172,6 @@ class SolidusAdmin::StockItems::Index::Component < SolidusAdmin::UI::Pages::Inde
   end
 
   def turbo_frames
-    %w[edit_stock_item_modal]
+    %w[resource_form]
   end
 end

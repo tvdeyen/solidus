@@ -7,6 +7,7 @@ module Spree
   #
   class Payment < Spree::Base
     include Spree::Payment::Processing
+    include Metadata
 
     IDENTIFIER_CHARS    = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
     NON_RISKY_AVS_CODES = ['B', 'D', 'H', 'J', 'M', 'Q', 'T', 'V', 'X', 'Y'].freeze
@@ -69,7 +70,7 @@ module Spree
 
     # @return [Spree::Money] this amount of this payment as money object
     def money
-      Spree::Money.new(amount, { currency: currency })
+      Spree::Money.new(amount, { currency: })
     end
     alias display_amount money
 
@@ -82,7 +83,7 @@ module Spree
         when String
           separator = I18n.t('number.currency.format.separator')
           number    = amount.delete("^0-9-#{separator}\.").tr(separator, '.')
-          number.to_d if number.present?
+          number.presence&.to_d
         end || amount
     end
 
@@ -211,7 +212,7 @@ module Spree
     def set_unique_identifier
       loop do
         self.number = generate_identifier
-        break unless self.class.exists?(number: number)
+        break unless self.class.exists?(number:)
       end
     end
 

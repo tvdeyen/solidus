@@ -124,7 +124,7 @@ class SolidusAdmin::Orders::Index::Component < SolidusAdmin::UI::Pages::Index::C
           'canceled' => :blue,
           'cart' => :graphite_light,
         }[order.state] || :yellow
-        component('ui/badge').new(name: order.state.humanize, color: color)
+        component('ui/badge').new(name: order.state.humanize, color:)
       end
     }
   end
@@ -143,7 +143,7 @@ class SolidusAdmin::Orders::Index::Component < SolidusAdmin::UI::Pages::Index::C
       col: { class: "w-[400px]" },
       header: :customer,
       data: ->(order) do
-        customer_email = order.user&.email
+        customer_email = order.email
         content_tag :div, String(customer_email)
       end
     }
@@ -153,7 +153,7 @@ class SolidusAdmin::Orders::Index::Component < SolidusAdmin::UI::Pages::Index::C
     {
       header: :total,
       data: ->(order) do
-        content_tag :div, number_to_currency(order.total)
+        content_tag :div, order.display_total
       end
     }
   end

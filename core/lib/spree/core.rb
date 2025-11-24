@@ -39,6 +39,10 @@ module Spree
     end
   end
 
+  def self.user_class_name
+    @@user_class
+  end
+
   # Load the same version defaults for all available Solidus components
   #
   # @see Spree::Preferences::Configuration#load_defaults
@@ -97,30 +101,22 @@ require 'spree/core/environment'
 require 'spree/migrations'
 require 'spree/migration_helpers'
 require 'spree/bus'
+require 'spree/config'
 require 'spree/core/engine'
+require 'spree/zero'
 
 require 'spree/i18n'
 require 'spree/localized_number'
-require 'spree/money'
 require 'spree/permitted_attributes'
 
 require 'spree/core/importer'
 require 'spree/core/permalinks'
 require 'spree/core/product_duplicator'
-require 'spree/core/controller_helpers/auth'
-require 'spree/core/controller_helpers/common'
-require 'spree/core/controller_helpers/order'
-require 'spree/core/controller_helpers/payment_parameters'
-require 'spree/core/controller_helpers/pricing'
-require 'spree/core/controller_helpers/search'
-require 'spree/core/controller_helpers/store'
-require 'spree/core/controller_helpers/strong_parameters'
 require 'spree/core/role_configuration'
 require 'spree/core/state_machines'
 require 'spree/core/stock_configuration'
 require 'spree/core/null_promotion_configuration'
 require 'spree/core/validators/email'
-require 'spree/permission_sets'
 require 'spree/user_class_handle'
 
 require 'spree/preferences/store'
